@@ -1,0 +1,46 @@
+import XCTest
+import SwiftData
+@testable import LifeOS
+
+final class SwiftDataPersistenceTests: XCTestCase {
+    private func makeContainer() throws -> ModelContainer {
+        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
+        return try ModelContainer(
+            for: Habit.self, LifeArea.self, LifeTask.self, LifeGoal.self,
+            configurations: configuration
+        )
+    }
+
+    func testHabitCanBeInsertedUpdatedAndDeleted() throws {
+        let container = try makeContainer()
+        let context = container.mainContext
+        let habit = Habit(title: "Read", area: "Mind")
+        context.insert(habit)
+        try context.save()
+
+        var habits = try context.fetch(FetchDescriptor<Habit>())
+        XCTAssertEqual(habits.count, 1)
+        XCTAssertEqual(habits.first?.title, "Read")
+
+        habits[0].isComplete = true
+        try context.save()
+        XCTAssertTrue(try context.fetch(FetchDescriptor<Habit>()).first?.isComplete ?? false)
+
+        context.delete(habits[0])
+        try context.save()
+        XCTAssertTrue(try context.fetch(FetchDescriptor<Habit>()).isEmpty)
+    }
+
+    func testAreasTasksAndGoalsPersist() throws {
+        let container = try makeContainer()
+        let context = container.mainContext
+        context.insert(LifeArea(name: "Body"))
+        context.insert(LifeTask(title: "Plan the week"))
+        context.insert(LifeGoal(title: "Run 5 km", progress: 25))
+        try context.save()
+
+        XCTAssertEqual(try context.fetch(FetchDescriptor<LifeArea>()).count, 1)
+        XCTAssertEqual(try context.fetch(FetchDescriptor<LifeTask>()).first?.title, "Plan the week")
+        XCTAssertEqual(try context.fetch(FetchDescriptor<LifeGoal>()).first?.progress, 25)
+    }
+}
