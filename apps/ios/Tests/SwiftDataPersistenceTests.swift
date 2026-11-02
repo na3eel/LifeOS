@@ -2,6 +2,7 @@ import XCTest
 import SwiftData
 @testable import LifeOS
 
+@MainActor
 final class SwiftDataPersistenceTests: XCTestCase {
     private func makeContainer() throws -> ModelContainer {
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
