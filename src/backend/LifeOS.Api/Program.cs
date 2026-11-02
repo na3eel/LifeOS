@@ -1,11 +1,13 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.RateLimiting;
 using LifeOS.Api.Services;
 using LifeOS.Infrastructure.Identity;
 using LifeOS.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -13,6 +15,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 builder.Services.AddProblemDetails();
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("auth", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                AutoReplenishment = true
+            }));
+});
 
 var connectionString = builder.Configuration.GetConnectionString("LifeOS")
     ?? throw new InvalidOperationException("ConnectionStrings:LifeOS must be configured.");
@@ -71,6 +87,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 
 app.UseExceptionHandler();
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -88,7 +105,7 @@ app.MapGet("/api/v1/meta", () => Results.Ok(new
     persistenceConfigured = true
 })).WithName("ApiMetadata");
 
-var auth = app.MapGroup("/api/v1/auth").WithTags("Authentication");
+var auth = app.MapGroup("/api/v1/auth").WithTags("Authentication").RequireRateLimiting("auth");
 
 auth.MapPost("/register", async (
     RegisterRequest request,
