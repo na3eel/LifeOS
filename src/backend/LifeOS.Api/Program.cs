@@ -38,4 +38,4 @@ app.MapGet("/", () => Results.Redirect("/health"));
 
 app.Run();
 
-public partial class Program;
+public partial class Program { }
