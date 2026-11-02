@@ -20,3 +20,24 @@ targets:
         INFOPLIST_KEY_CFBundleDisplayName: LifeOS
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         GENERATE_INFOPLIST_FILE: YES
+
+  LifeOSTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests
+    dependencies:
+      - target: LifeOS
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.lifeos.ios.tests
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  LifeOS:
+    build:
+      targets:
+        LifeOS: all
+        LifeOSTests: [test]
+    test:
+      targets:
+        - LifeOSTests
