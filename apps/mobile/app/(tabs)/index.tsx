@@ -53,7 +53,7 @@ const s = StyleSheet.create({
   section: { fontSize: 19, fontWeight: "700" },
   habit: { borderWidth: 1, borderRadius: 18, padding: 13, flexDirection: "row", alignItems: "center", gap: 12 },
   habitIcon: { width: 42, height: 42, borderRadius: 14, alignItems: "center", justifyContent: "center" },
-  habitName: { fontSize: 14, fontWeight: "650" },
+  habitName: { fontSize: 14, fontWeight: "600" },
   check: { width: 24, height: 24, borderWidth: 1.5, borderRadius: 8 },
   note: { padding: 17, borderRadius: 18 }
 });
