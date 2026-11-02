@@ -1,6 +1,6 @@
 import { ScrollView, Text, View, StyleSheet, useColorScheme } from "react-native";
-import { lifeAreas } from "../src/features/life-areas/data";
-import { palette, spacing, radius } from "../src/design-system/tokens";
+import { lifeAreas } from "../../src/features/life-areas/data";
+import { palette, spacing, radius } from "../../src/design-system/tokens";
 
 export default function LifeAreasScreen() {
   const mode = useColorScheme() === "dark" ? "dark" : "light";
