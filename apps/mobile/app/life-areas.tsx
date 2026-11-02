@@ -34,7 +34,7 @@ const s = StyleSheet.create({
   subtitle: { fontSize: 14, marginBottom: 8 },
   card: { borderWidth: 1, borderRadius: radius.lg, padding: 16, flexDirection: "row", alignItems: "center", gap: 14 },
   icon: { width: 48, height: 48, borderRadius: 16, alignItems: "center", justifyContent: "center" },
-  name: { fontSize: 17, fontWeight: "650" },
+  name: { fontSize: 17, fontWeight: "600" },
   description: { fontSize: 12, marginTop: 3 },
   meta: { fontSize: 11, marginTop: 8 }
 });
