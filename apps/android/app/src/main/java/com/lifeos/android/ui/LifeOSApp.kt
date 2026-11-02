@@ -36,7 +36,7 @@ private val lifeAreas=listOf("Body","Mind","Soul","Social","Career")
  var note by remember { mutableStateOf("") }
  var area by remember { mutableStateOf("Mind") }
  LaunchedEffect(Unit){if(areas.isEmpty()) lifeAreas.forEach{dao.addArea(AreaEntity(it.lowercase(),it))}}
- Scaffold(topBar={TopAppBar(title={Text("LifeOS",fontWeight=FontWeight.SemiBold)},actions={IconButton(onClick={kind=if(tab==Tab.Plan)"Task" else "Habit";dialog=true}){Icon(Icons.Outlined.Add,"Add")}})},
+ Scaffold(topBar={TopAppBar(title={Text("LifeOS",fontWeight=FontWeight.SemiBold)},actions={IconButton(onClick={kind=when(tab){Tab.Plan->"Task";Tab.Areas->"Area";else->"Habit"};dialog=true}){Icon(Icons.Outlined.Add,"Add")}})},
  bottomBar={NavigationBar{listOf(Tab.Today,Tab.Areas,Tab.Plan,Tab.Insights,Tab.Coach).forEach{t->NavigationBarItem(selected = tab == t, onClick = { tab = t }, icon = { Icon(when(t){Tab.Today->Icons.Outlined.Today;Tab.Areas->Icons.Outlined.GridView;Tab.Plan->Icons.Outlined.CalendarMonth;Tab.Insights->Icons.Outlined.Insights;Tab.Coach->Icons.Outlined.Forum}, contentDescription = t.name) }, label = { Text(if(t==Tab.Plan)"Plan" else t.name) })}}}){pad->
  when(tab){
  Tab.Today->LazyColumn(Modifier.fillMaxSize().padding(pad).padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
@@ -49,7 +49,7 @@ private val lifeAreas=listOf("Body","Mind","Soul","Social","Career")
  items(tasks.take(5),key={it.id}){t->ListItem(headlineContent={Text(t.title)},leadingContent={Checkbox(t.done,{v->scope.launch{dao.updateTask(t.copy(done=v))}})})}
  }
  Tab.Areas->LazyColumn(Modifier.fillMaxSize().padding(pad).padding(20.dp),verticalArrangement=Arrangement.spacedBy(10.dp)){
- item{Text("Life areas",style=MaterialTheme.typography.headlineLarge);Text("Build a balanced rhythm across the parts of life.")}
+ item{Text("Life areas",style=MaterialTheme.typography.headlineLarge);Text("Build a balanced rhythm across the parts of life.");Button(onClick={kind="Area";dialog=true}){Text("Add life area")}}
  items(areas,key={it.id}){a->Card{Column(Modifier.fillMaxWidth().padding(16.dp)){Text(a.name,style=MaterialTheme.typography.titleLarge);Text(habits.count{it.area==a.name}.toString()+" habits");TextButton(onClick={area=a.name;kind="Habit";dialog=true}){Text("Add habit")}}}}
  item{Text("Goals",style=MaterialTheme.typography.titleLarge);Button(onClick={kind="Goal";dialog=true}){Text("Create goal")}}
  items(goals,key={it.id}){g->Card{Column(Modifier.padding(16.dp)){Text(g.title);Slider(g.progress.toFloat(),{v->scope.launch{dao.updateGoal(g.copy(progress=v.toInt()))}},valueRange=0f..100f);Text(g.progress.toString()+"% complete")}}}
@@ -70,7 +70,7 @@ private val lifeAreas=listOf("Body","Mind","Soul","Social","Career")
  }
  }
  }
- if(dialog)AlertDialog(onDismissRequest={dialog=false},title={Text("New "+kind.lowercase())},text={Column(verticalArrangement=Arrangement.spacedBy(8.dp)){OutlinedTextField(title,{title=it},label={Text("Name")},singleLine=true);if(kind=="Habit"){OutlinedTextField(note,{note=it},label={Text("Optional note")});Text("Life area");lifeAreas.forEach{FilterChip(area==it,{area=it},{Text(it)})}}}},confirmButton={TextButton(enabled=title.isNotBlank(),onClick={val clean=title.trim();scope.launch{when(kind){"Habit"->dao.addHabit(HabitEntity(UUID.randomUUID().toString(),clean,note.trim(),area));"Task"->dao.addTask(TaskEntity(UUID.randomUUID().toString(),clean));"Goal"->dao.addGoal(GoalEntity(UUID.randomUUID().toString(),clean));"Area"->dao.addArea(AreaEntity(UUID.randomUUID().toString(),clean))}};title="";note="";dialog=false}){Text("Save")}},dismissButton={TextButton(onClick={dialog=false}){Text("Cancel")}})
+ if(dialog)AlertDialog(onDismissRequest={dialog=false},title={Text("New "+kind.lowercase())},text={Column(verticalArrangement=Arrangement.spacedBy(8.dp)){OutlinedTextField(title,{title=it},label={Text("Name")},singleLine=true);if(kind=="Habit"){OutlinedTextField(note,{note=it},label={Text("Optional note")});Text("Life area");areas.map{it.name}.forEach{FilterChip(area==it,{area=it},{Text(it)})}}}},confirmButton={TextButton(enabled=title.isNotBlank(),onClick={val clean=title.trim();scope.launch{when(kind){"Habit"->dao.addHabit(HabitEntity(UUID.randomUUID().toString(),clean,note.trim(),area));"Task"->dao.addTask(TaskEntity(UUID.randomUUID().toString(),clean));"Goal"->dao.addGoal(GoalEntity(UUID.randomUUID().toString(),clean));"Area"->dao.addArea(AreaEntity(UUID.randomUUID().toString(),clean))}};title="";note="";dialog=false}){Text("Save")}},dismissButton={TextButton(onClick={dialog=false}){Text("Cancel")}})
 }
 @Composable private fun Empty(title:String,detail:String){Card{Column(Modifier.fillMaxWidth().padding(20.dp),horizontalAlignment=Alignment.CenterHorizontally){Text(title,style=MaterialTheme.typography.titleMedium);Text(detail,color=MaterialTheme.colorScheme.onSurfaceVariant)}}}
 @Composable private fun Metric(label:String,value:String){Card{Row(Modifier.fillMaxWidth().padding(18.dp),horizontalArrangement=Arrangement.SpaceBetween){Text(label);Text(value,style=MaterialTheme.typography.headlineSmall)}}}
