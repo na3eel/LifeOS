@@ -12,15 +12,31 @@ public sealed class LifeOsDbContext(DbContextOptions<LifeOsDbContext> options) :
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<LifeArea>(b =>
+        {
+            b.ToTable("life_areas");
+            b.HasKey(x => x.Id);
+            b.Property(x => x.Name).HasMaxLength(60).IsRequired();
+            b.Property(x => x.Color).HasMaxLength(16).IsRequired();
+            b.HasIndex(x => new { x.UserId, x.Name }).IsUnique();
+            b.HasIndex(x => new { x.UserId, x.Id }).IsUnique();
+        });
+
         modelBuilder.Entity<Habit>(b =>
         {
             b.ToTable("habits");
             b.HasKey(x => x.Id);
             b.Property(x => x.Name).HasMaxLength(120).IsRequired();
-            b.HasIndex(x => new { x.UserId, x.IsActive });
             b.Property(x => x.StartDate).HasColumnType("date");
             b.Property(x => x.EndDate).HasColumnType("date");
+            b.HasIndex(x => new { x.UserId, x.IsActive });
+            b.HasIndex(x => new { x.UserId, x.Id }).IsUnique();
+            b.HasOne<LifeArea>()
+                .WithMany()
+                .HasForeignKey(x => x.LifeAreaId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
+
         modelBuilder.Entity<HabitCompletion>(b =>
         {
             b.ToTable("habit_completions");
@@ -29,14 +45,10 @@ public sealed class LifeOsDbContext(DbContextOptions<LifeOsDbContext> options) :
             b.Property(x => x.TimeZoneId).HasMaxLength(100).IsRequired();
             b.HasIndex(x => new { x.HabitId, x.LocalDate }).IsUnique();
             b.HasIndex(x => new { x.UserId, x.LocalDate });
-        });
-        modelBuilder.Entity<LifeArea>(b =>
-        {
-            b.ToTable("life_areas");
-            b.HasKey(x => x.Id);
-            b.Property(x => x.Name).HasMaxLength(60).IsRequired();
-            b.Property(x => x.Color).HasMaxLength(16).IsRequired();
-            b.HasIndex(x => new { x.UserId, x.Name }).IsUnique();
+            b.HasOne<Habit>()
+                .WithMany()
+                .HasForeignKey(x => x.HabitId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }
