@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct LifeOSApp: App {
@@ -6,6 +7,7 @@ struct LifeOSApp: App {
         WindowGroup {
             RootView()
                 .tint(Color.lifeOSBrand)
+                .modelContainer(for: Habit.self)
         }
     }
 }
