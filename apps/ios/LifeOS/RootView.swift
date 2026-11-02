@@ -19,7 +19,7 @@ struct RootView:View{
    planScreen.tabItem{Label("Plan",systemImage:"calendar")}.tag(AppTab.plan)
    insightsScreen.tabItem{Label("Insights",systemImage:"chart.bar.xaxis")}.tag(AppTab.insights)
    coachScreen.tabItem{Label("Coach",systemImage:"bubble.left.and.bubble.right")}.tag(AppTab.coach)
-  }.sheet(isPresented:$showingAdd){AddSheet(kind:addKind){name,note,area in
+  }.tint(Color.lifeOSBrand).sheet(isPresented:$showingAdd){AddSheet(kind:addKind){name,note,area in
    switch addKind{case "Habit":context.insert(Habit(title:name,detail:note,area:area));case "Task":context.insert(LifeTask(title:name));case "Goal":context.insert(LifeGoal(title:name));case "Area":context.insert(LifeArea(name:name,detail:note));default:break}
   }}.task{if areas.isEmpty{["Body","Mind","Soul","Social","Career"].forEach{context.insert(LifeArea(name:$0))}}}
  }
