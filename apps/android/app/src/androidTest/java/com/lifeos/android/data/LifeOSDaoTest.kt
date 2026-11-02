@@ -1,0 +1,61 @@
+package com.lifeos.android.data
+
+import androidx.room.Room
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import android.content.Context
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@RunWith(AndroidJUnit4::class)
+class LifeOSDaoTest {
+    private lateinit var database: LifeOSDatabase
+    private val dao get() = database.dao()
+
+    @Before
+    fun createDatabase() {
+        database = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext<Context>(),
+            LifeOSDatabase::class.java
+        ).allowMainThreadQueries().build()
+    }
+
+    @After
+    fun closeDatabase() = database.close()
+
+    @Test
+    fun habitCanBeCreatedUpdatedAndDeleted() = runBlocking {
+        val habit = HabitEntity(id = "habit-1", title = "Read", area = "Mind")
+        dao.addHabit(habit)
+        assertEquals(listOf(habit), dao.habits().first())
+
+        dao.updateHabit(habit.copy(done = true))
+        assertTrue(dao.habits().first().single().done)
+
+        dao.deleteHabit(habit.copy(done = true))
+        assertTrue(dao.habits().first().isEmpty())
+    }
+
+    @Test
+    fun tasksAndGoalsPersistIndependently() = runBlocking {
+        dao.addTask(TaskEntity(id = "task-1", title = "Plan week"))
+        dao.addGoal(GoalEntity(id = "goal-1", title = "Run 5 km", progress = 25))
+
+        assertEquals("Plan week", dao.tasks().first().single().title)
+        assertEquals(25, dao.goals().first().single().progress)
+    }
+
+    @Test
+    fun areasAreStoredAndOrdered() = runBlocking {
+        dao.addArea(AreaEntity(id = "z", name = "Soul"))
+        dao.addArea(AreaEntity(id = "a", name = "Body"))
+
+        assertEquals(listOf("Body", "Soul"), dao.areas().first().map { it.name })
+    }
+}
