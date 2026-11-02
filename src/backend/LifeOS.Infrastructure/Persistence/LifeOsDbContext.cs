@@ -19,7 +19,7 @@ public sealed class LifeOsDbContext(DbContextOptions<LifeOsDbContext> options) :
             b.Property(x => x.Name).HasMaxLength(60).IsRequired();
             b.Property(x => x.Color).HasMaxLength(16).IsRequired();
             b.HasIndex(x => new { x.UserId, x.Name }).IsUnique();
-            b.HasIndex(x => new { x.UserId, x.Id }).IsUnique();
+            b.HasAlternateKey(x => new { x.UserId, x.Id });
         });
 
         modelBuilder.Entity<Habit>(b =>
@@ -30,10 +30,11 @@ public sealed class LifeOsDbContext(DbContextOptions<LifeOsDbContext> options) :
             b.Property(x => x.StartDate).HasColumnType("date");
             b.Property(x => x.EndDate).HasColumnType("date");
             b.HasIndex(x => new { x.UserId, x.IsActive });
-            b.HasIndex(x => new { x.UserId, x.Id }).IsUnique();
+            b.HasAlternateKey(x => new { x.UserId, x.Id });
             b.HasOne<LifeArea>()
                 .WithMany()
-                .HasForeignKey(x => x.LifeAreaId)
+                .HasForeignKey(x => new { x.UserId, x.LifeAreaId })
+                .HasPrincipalKey(x => new { x.UserId, x.Id })
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -43,11 +44,12 @@ public sealed class LifeOsDbContext(DbContextOptions<LifeOsDbContext> options) :
             b.HasKey(x => x.Id);
             b.Property(x => x.LocalDate).HasColumnType("date");
             b.Property(x => x.TimeZoneId).HasMaxLength(100).IsRequired();
-            b.HasIndex(x => new { x.HabitId, x.LocalDate }).IsUnique();
+            b.HasIndex(x => new { x.UserId, x.HabitId, x.LocalDate }).IsUnique();
             b.HasIndex(x => new { x.UserId, x.LocalDate });
             b.HasOne<Habit>()
                 .WithMany()
-                .HasForeignKey(x => x.HabitId)
+                .HasForeignKey(x => new { x.UserId, x.HabitId })
+                .HasPrincipalKey(x => new { x.UserId, x.Id })
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }
