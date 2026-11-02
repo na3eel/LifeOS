@@ -26,6 +26,8 @@ jobs:
           api-level: 35
           arch: x86_64
           target: google_apis
+          emulator-boot-timeout: 600
+          disable-animations: true
           script: cd apps/android && gradle :app:connectedDebugAndroidTest
       - name: Upload installable debug APK
         uses: actions/upload-artifact@v4
