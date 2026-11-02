@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lifeos.android.data.*
 import kotlinx.coroutines.launch
@@ -36,7 +37,7 @@ private val lifeAreas=listOf("Body","Mind","Soul","Social","Career")
  var note by remember { mutableStateOf("") }
  var area by remember { mutableStateOf("Mind") }
  LaunchedEffect(Unit){if(areas.isEmpty()) lifeAreas.forEach{dao.addArea(AreaEntity(it.lowercase(),it))}}
- Scaffold(topBar={TopAppBar(title={Text("LifeOS",fontWeight=FontWeight.SemiBold)},actions={IconButton(onClick={kind=when(tab){Tab.Plan->"Task";Tab.Areas->"Area";else->"Habit"};dialog=true}){Icon(Icons.Outlined.Add,"Add")}})},
+ Scaffold(topBar={TopAppBar(title={Text("LifeOS",fontFamily=androidx.compose.ui.text.font.FontFamily.SansSerif,fontWeight=FontWeight.Black,letterSpacing=(-1.1).sp)},actions={IconButton(onClick={kind=when(tab){Tab.Plan->"Task";Tab.Areas->"Area";else->"Habit"};dialog=true}){Icon(Icons.Outlined.Add,"Add")}})},
  bottomBar={NavigationBar{listOf(Tab.Today,Tab.Areas,Tab.Plan,Tab.Insights,Tab.Coach).forEach{t->NavigationBarItem(selected = tab == t, onClick = { tab = t }, icon = { Icon(when(t){Tab.Today->Icons.Outlined.Today;Tab.Areas->Icons.Outlined.GridView;Tab.Plan->Icons.Outlined.CalendarMonth;Tab.Insights->Icons.Outlined.Insights;Tab.Coach->Icons.Outlined.Forum}, contentDescription = t.name) }, label = { Text(if(t==Tab.Plan)"Plan" else t.name) })}}}){pad->
  when(tab){
  Tab.Today->LazyColumn(Modifier.fillMaxSize().padding(pad).padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
