@@ -22,7 +22,8 @@ private val lifeAreas=listOf("Body","Mind","Soul","Social","Career")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable fun LifeOSApp(){
- val dao= remember { LifeOSDatabase.get(LocalContext.current).dao() }
+ val context = LocalContext.current
+ val dao = remember(context) { LifeOSDatabase.get(context).dao() }
  val scope= rememberCoroutineScope()
  val habits by dao.habits().collectAsStateWithLifecycle(emptyList())
  val areas by dao.areas().collectAsStateWithLifecycle(emptyList())
@@ -36,7 +37,7 @@ private val lifeAreas=listOf("Body","Mind","Soul","Social","Career")
  var area by remember { mutableStateOf("Mind") }
  LaunchedEffect(Unit){if(areas.isEmpty()) lifeAreas.forEach{dao.addArea(AreaEntity(it.lowercase(),it))}}
  Scaffold(topBar={TopAppBar(title={Text("LifeOS",fontWeight=FontWeight.SemiBold)},actions={IconButton(onClick={kind=if(tab==Tab.Plan)"Task" else "Habit";dialog=true}){Icon(Icons.Outlined.Add,"Add")}})},
- bottomBar={NavigationBar{listOf(Tab.Today,Tab.Areas,Tab.Plan,Tab.Insights,Tab.Coach).forEach{t->NavigationBarItem(tab==t,{tab=t},{Icon(when(t){Tab.Today->Icons.Outlined.Today;Tab.Areas->Icons.Outlined.GridView;Tab.Plan->Icons.Outlined.CalendarMonth;Tab.Insights->Icons.Outlined.Insights;Tab.Coach->Icons.Outlined.Forum},t.name)},{Text(if(t==Tab.Plan)"Plan" else t.name)})}}}){pad->
+ bottomBar={NavigationBar{listOf(Tab.Today,Tab.Areas,Tab.Plan,Tab.Insights,Tab.Coach).forEach{t->NavigationBarItem(selected = tab == t, onClick = { tab = t }, icon = { Icon(when(t){Tab.Today->Icons.Outlined.Today;Tab.Areas->Icons.Outlined.GridView;Tab.Plan->Icons.Outlined.CalendarMonth;Tab.Insights->Icons.Outlined.Insights;Tab.Coach->Icons.Outlined.Forum}, contentDescription = t.name) }, label = { Text(if(t==Tab.Plan)"Plan" else t.name) })}}}){pad->
  when(tab){
  Tab.Today->LazyColumn(Modifier.fillMaxSize().padding(pad).padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
  item{Text("YOUR DAY",style=MaterialTheme.typography.labelMedium);Text("Make today count.",style=MaterialTheme.typography.headlineLarge,fontWeight=FontWeight.SemiBold)
