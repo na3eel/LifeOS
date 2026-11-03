@@ -1,5 +1,7 @@
 package com.lifeos.android.ui
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,7 +39,7 @@ private val lifeAreas=listOf("Body","Mind","Soul","Social","Career")
  var note by remember { mutableStateOf("") }
  var area by remember { mutableStateOf("Mind") }
  LaunchedEffect(Unit){if(areas.isEmpty()) lifeAreas.forEach{dao.addArea(AreaEntity(it.lowercase(),it))}}
- Scaffold(topBar={TopAppBar(title={Text("LifeOS",fontFamily=androidx.compose.ui.text.font.FontFamily.SansSerif,fontWeight=FontWeight.Black,letterSpacing=(-1.1).sp)},actions={IconButton(onClick={kind=when(tab){Tab.Plan->"Task";Tab.Areas->"Area";else->"Habit"};dialog=true}){Icon(Icons.Outlined.Add,"Add")}})},
+ Scaffold(topBar={TopAppBar(title={Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(10.dp)){Image(painterResource(com.lifeos.android.R.drawable.lifeos_mark),contentDescription="LifeOS logo",modifier=Modifier.size(34.dp));Text("LifeOS",fontFamily=androidx.compose.ui.text.font.FontFamily.SansSerif,fontWeight=FontWeight.Black,letterSpacing=(-1.1).sp)}},actions={IconButton(onClick={kind=when(tab){Tab.Plan->"Task";Tab.Areas->"Area";else->"Habit"};dialog=true}){Icon(Icons.Outlined.Add,"Add")}})},
  bottomBar={NavigationBar{listOf(Tab.Today,Tab.Areas,Tab.Plan,Tab.Insights,Tab.Coach).forEach{t->NavigationBarItem(selected = tab == t, onClick = { tab = t }, icon = { Icon(when(t){Tab.Today->Icons.Outlined.Today;Tab.Areas->Icons.Outlined.GridView;Tab.Plan->Icons.Outlined.CalendarMonth;Tab.Insights->Icons.Outlined.Insights;Tab.Coach->Icons.Outlined.Forum}, contentDescription = t.name) }, label = { Text(if(t==Tab.Plan)"Plan" else t.name) })}}}){pad->
  when(tab){
  Tab.Today->LazyColumn(Modifier.fillMaxSize().padding(pad).padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
