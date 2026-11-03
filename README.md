@@ -7,9 +7,10 @@ LifeOS is a mobile-first, freemium personal operating system for habits, life ar
 - Platforms: iOS and Android (mobile first)
 - Product: SaaS, freemium
 - Design: custom, Strata-inspired; do not copy proprietary assets or UI
-- Theme: adaptive light/dark with manual override
+- Theme: approved Strata visual system; adaptive light/dark implementations must preserve its semantic tokens and visual hierarchy
+- Theme source of truth: [Approved LifeOS Strata Theme](docs/design/lifeos-approved-theme.md)
 - Android: Kotlin + Jetpack Compose (native)
-- iOS: Swift + SwiftUI (native; iOS 26 Liquid Glass where appropriate)
+- iOS: Swift + SwiftUI (native; preserve native platform behavior without introducing glassmorphism)
 - Design system: Lumen native Compose and SwiftUI components
 - Backend: ASP.NET Core 10 / C# 14
 - Persistence: PostgreSQL + Entity Framework Core
@@ -23,6 +24,7 @@ LifeOS is a mobile-first, freemium personal operating system for habits, life ar
 - `src/backend` — .NET solution and API
 - `contracts/openapi` — shared API contract artifacts
 - `docs/architecture` — architecture decisions and diagrams
+- `docs/design` — approved visual direction and design decisions
 - `docs/product` — product requirements and UX decisions
 
 ## Parallel delivery
