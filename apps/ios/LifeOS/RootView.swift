@@ -8,10 +8,11 @@ struct RootView:View{
  @Query(sort:\LifeArea.name) private var areas:[LifeArea]
  @Query private var tasks:[LifeTask]
  @Query private var goals:[LifeGoal]
+ @Query private var completions:[HabitCompletion]
  @State private var tab:AppTab = .today
  @State private var showingAdd=false
  @State private var addKind="Habit"
- private var done:Int{habits.filter(\.isComplete).count}
+ private var done:Int{let formatter=DateFormatter();formatter.calendar=Calendar.current;formatter.timeZone = .current;formatter.dateFormat="yyyy-MM-dd";let key=formatter.string(from:Date.now);return Set(completions.filter{$0.localDate==key}.map(\.habitID)).count}
  var body:some View{
   TabView(selection:$tab){
    today.tabItem{Label("Today",systemImage:"checkmark.circle")}.tag(AppTab.today)
