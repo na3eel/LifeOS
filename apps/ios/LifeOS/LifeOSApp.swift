@@ -15,23 +15,23 @@ struct LifeOSApp: App {
 private struct LifeOSThemedRoot: View {
     @Environment(\.colorScheme) private var colorScheme
 
-    private var strataTheme: LumenTheme {
+    private var tirniTheme: LumenTheme {
         let dark = colorScheme == .dark
         let base = dark ? LumenColors.dark : LumenColors.light
         let colors = base.overriding(
-            canvas: Color(hex: dark ? 0x171313 : 0xFFFBF7),
-            surface: Color(hex: dark ? 0x211C24 : 0xF3E8E1),
-            surfaceMuted: Color(hex: dark ? 0x342B37 : 0xF3E8E1),
-            surfaceStrong: Color(hex: dark ? 0x463A49 : 0xE9DDD6),
-            line: Color(hex: dark ? 0x655767 : 0xD6C5BC),
-            ink: Color(hex: dark ? 0xF8F0F5 : 0x1F1724),
-            inkSoft: Color(hex: dark ? 0xE0D5E3 : 0x443843),
-            inkMuted: Color(hex: dark ? 0xB9AABF : 0x6F626B),
-            brand: Color(hex: dark ? 0xFF9A7E : 0xDB5635),
-            brandSolid: Color(hex: dark ? 0xFF9A7E : 0xB83F25),
-            brandSoft: Color(hex: dark ? 0x642B1C : 0xFCE4DA),
+            canvas: Color(hex: dark ? 0x0F0B0D : 0xFFFBF7),
+            surface: Color(hex: dark ? 0x1B1217 : 0xFFF3F5),
+            surfaceMuted: Color(hex: dark ? 0x291820 : 0xFFF3F5),
+            surfaceStrong: Color(hex: dark ? 0x3B202A : 0xFFE1E8),
+            line: Color(hex: dark ? 0x5A3A45 : 0xF1DDE2),
+            ink: Color(hex: dark ? 0xFFF5F7 : 0x111827),
+            inkSoft: Color(hex: dark ? 0xE8D9DE : 0x374151),
+            inkMuted: Color(hex: dark ? 0xC8B8BE : 0x6B7280),
+            brand: Color(hex: dark ? 0xFF6B86 : 0xE5093B),
+            brandSolid: Color(hex: dark ? 0xFF6B86 : 0x8B001C),
+            brandSoft: Color(hex: dark ? 0x642B1C : 0xFFE1E8),
             onBrand: Color(hex: dark ? 0x32130B : 0xFFFFFF),
-            accent: Color(hex: dark ? 0xC99BFF : 0x9828F6),
+            accent: Color(hex: dark ? 0xC99BFF : 0x8B001C),
             success: Color(hex: dark ? 0x79D69D : 0x247A4B),
             warning: Color(hex: dark ? 0xF2C36D : 0x946000),
             danger: Color(hex: dark ? 0xFFB4AB : 0xB3261E),
@@ -46,6 +46,6 @@ private struct LifeOSThemedRoot: View {
 
     var body: some View {
         RootView()
-            .lumenTheme(strataTheme, enforceColorScheme: false)
+            .lumenTheme(tirniTheme, enforceColorScheme: false)
     }
 }
