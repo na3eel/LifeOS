@@ -34,7 +34,7 @@ data class HabitCompletionEntity(
 data class AreaEntity(@PrimaryKey val id: String, val name: String, val note: String = "")
 
 @Entity(tableName = "tasks")
-data class TaskEntity(@PrimaryKey val id: String, val title: String, val done: Boolean = false)
+data class TaskEntity(@PrimaryKey val id: String, val title: String, val done: Boolean = false, val dueDate: String? = null)
 
 @Entity(tableName = "goals")
 data class GoalEntity(@PrimaryKey val id: String, val title: String, val progress: Int = 0)
@@ -53,7 +53,7 @@ interface LifeOSDao {
     suspend fun undoHabitCompletion(habitId: String, localDate: String)
     @Query("SELECT * FROM life_areas ORDER BY name") fun areas(): Flow<List<AreaEntity>>
     @Insert suspend fun addArea(x: AreaEntity)
-    @Query("SELECT * FROM tasks ORDER BY title") fun tasks(): Flow<List<TaskEntity>>
+    @Query("SELECT * FROM tasks ORDER BY CASE WHEN dueDate IS NULL THEN 1 ELSE 0 END, dueDate, title") fun tasks(): Flow<List<TaskEntity>>
     @Insert suspend fun addTask(x: TaskEntity)
     @Update suspend fun updateTask(x: TaskEntity)
     @Delete suspend fun deleteTask(x: TaskEntity)
@@ -62,7 +62,7 @@ interface LifeOSDao {
     @Update suspend fun updateGoal(x: GoalEntity)
 }
 
-@Database(entities = [HabitEntity::class, HabitCompletionEntity::class, AreaEntity::class, TaskEntity::class, GoalEntity::class], version = 3, exportSchema = false)
+@Database(entities = [HabitEntity::class, HabitCompletionEntity::class, AreaEntity::class, TaskEntity::class, GoalEntity::class], version = 4, exportSchema = false)
 abstract class LifeOSDatabase : RoomDatabase() {
     abstract fun dao(): LifeOSDao
 
@@ -88,11 +88,17 @@ abstract class LifeOSDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE tasks ADD COLUMN dueDate TEXT")
+            }
+        }
+
         @Volatile private var INSTANCE: LifeOSDatabase? = null
 
         fun get(c: Context) = INSTANCE ?: synchronized(this) {
             INSTANCE ?: Room.databaseBuilder(c.applicationContext, LifeOSDatabase::class.java, "lifeos.db")
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                 .build()
                 .also { INSTANCE = it }
         }
