@@ -160,7 +160,7 @@ struct TodayView: View {
                 .accessibilityLabel("Next week")
             }
             HStack(spacing: 5) {
-                ForEach(weekDates, id: \\.self) { date in
+                ForEach(weekDates, id: \.self) { date in
                     let isSelected = Calendar.current.isDate(date, inSameDayAs: selectedDate)
                     let isToday = Calendar.current.isDateInToday(date)
                     Button {
