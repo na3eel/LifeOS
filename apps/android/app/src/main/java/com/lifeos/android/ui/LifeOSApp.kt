@@ -157,7 +157,7 @@ private val lifeAreas = listOf("Body", "Mind", "Soul", "Social", "Career")
             Tab.Insights -> LazyColumn(Modifier.fillMaxSize().padding(pad).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 item { Text("Your insights", style = MaterialTheme.typography.headlineLarge); Text("A simple view of the consistency you’re building.") }
                 item { Metric("Habits created", habits.size.toString()) }
-                item { Metric("Completed today", completions.size.toString()) }
+                item { Metric("Completed selected day", completions.size.toString()) }
                 item { Metric("Open tasks", tasks.count { !it.done }.toString()) }
                 item { Metric("Goals in progress", goals.count { it.progress < 100 }.toString()) }
             }
@@ -211,7 +211,7 @@ private fun WeekDateNavigator(
     onDateSelected: (LocalDate) -> Unit
 ) {
     val weekStart = selectedDate.with(DayOfWeek.MONDAY)
-    val dates = (0..6).map(weekStart::plusDays)
+    val dates = (0..6).map { offset -> weekStart.plusDays(offset.toLong()) }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -233,17 +233,19 @@ private fun WeekDateNavigator(
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             dates.forEach { date ->
                 val selected = date == selectedDate
-                TextButton(
+                Surface(
                     onClick = { onDateSelected(date) },
                     modifier = Modifier.weight(1f).heightIn(min = 56.dp),
-                    contentPadding = PaddingValues(vertical = 6.dp, horizontal = 0.dp),
-                    colors = ButtonDefaults.textButtonColors(
-                        containerColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-                        contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
-                    ),
-                    shape = RoundedCornerShape(12.dp)
+                    color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                    contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
+                    shape = RoundedCornerShape(12.dp),
+                    border = if (selected) null else androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Column(
+                        modifier = Modifier.padding(vertical = 7.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
                         Text(date.dayOfWeek.name.take(1), style = MaterialTheme.typography.labelSmall)
                         Text(date.dayOfMonth.toString(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                         if (date == today) Text("TODAY", style = MaterialTheme.typography.labelSmall)
