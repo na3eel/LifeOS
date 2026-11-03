@@ -1,65 +1,55 @@
 package com.lifeos.android.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.santi020k.lumen.LumenAppearance
+import com.santi020k.lumen.LumenColorPalette
+import com.santi020k.lumen.LumenTheme
+import com.santi020k.lumen.LumenThemeValues
+import com.santi020k.lumen.LumenSurfaceMaterial
 
-/** LifeOS Strata tokens. Keep in sync with docs/design/lifeos-approved-theme.md. */
-private val BrandOrange = Color(0xFFDB5635)
-private val GrowthPurple = Color(0xFF9828F6)
-private val WarmCanvas = Color(0xFFFFFBF7)
-private val WarmSurface = Color(0xFFF3E8E1)
-private val WarmBorder = Color(0xFFD6C5BC)
-private val NearBlack = Color(0xFF1F1724)
-private val MutedInk = Color(0xFF6F626B)
-
-private val LightColors = lightColorScheme(
-    primary = BrandOrange,
-    onPrimary = Color.White,
-    primaryContainer = Color(0xFFFCE4DA),
-    onPrimaryContainer = NearBlack,
-    secondary = GrowthPurple,
-    onSecondary = Color.White,
-    secondaryContainer = Color(0xFFF0E4FA),
-    onSecondaryContainer = NearBlack,
-    tertiary = GrowthPurple,
-    background = WarmCanvas,
-    onBackground = NearBlack,
-    surface = WarmCanvas,
-    onSurface = NearBlack,
-    surfaceVariant = WarmSurface,
-    onSurfaceVariant = MutedInk,
-    outline = WarmBorder,
-    outlineVariant = Color(0xFFE9DDD6),
-    error = Color(0xFFB3261E),
-    onError = Color.White
+/** LifeOS Strata semantic palette mapped into Lumen's native theme contract. */
+private val StrataLight = LumenColorPalette(
+    canvas = Color(0xFFFFFBF7),
+    surface = Color(0xFFFFFFFF),
+    surfaceMuted = Color(0xFFF3E8E1),
+    surfaceStrong = Color(0xFFE9DDD6),
+    line = Color(0xFFD6C5BC),
+    ink = Color(0xFF1F1724),
+    inkSoft = Color(0xFF443843),
+    inkMuted = Color(0xFF6F626B),
+    brand = Color(0xFFDB5635),
+    brandSolid = Color(0xFFB83F25),
+    brandSoft = Color(0xFFFCE4DA),
+    onBrand = Color.White,
+    accent = Color(0xFF9828F6),
+    success = Color(0xFF247A4B),
+    warning = Color(0xFF946000),
+    danger = Color(0xFFB3261E),
+    onDanger = Color.White
 )
 
-private val DarkColors = darkColorScheme(
-    primary = Color(0xFFFF9A7E),
-    onPrimary = Color(0xFF32130B),
-    primaryContainer = Color(0xFF642B1C),
-    onPrimaryContainer = Color(0xFFFFE1D7),
-    secondary = Color(0xFFC99BFF),
-    onSecondary = Color(0xFF321052),
-    secondaryContainer = Color(0xFF48266A),
-    onSecondaryContainer = Color(0xFFF0DFFF),
-    tertiary = Color(0xFFC99BFF),
-    background = Color(0xFF17131A),
-    onBackground = Color(0xFFF8F0F5),
+private val StrataDark = LumenColorPalette(
+    canvas = Color(0xFF17131A),
     surface = Color(0xFF211C24),
-    onSurface = Color(0xFFF8F0F5),
-    surfaceVariant = Color(0xFF342B37),
-    onSurfaceVariant = Color(0xFFE0D5E3),
-    outline = Color(0xFF8F808D),
-    outlineVariant = Color(0xFF514652),
-    error = Color(0xFFFFB4AB),
-    onError = Color(0xFF690005)
+    surfaceMuted = Color(0xFF342B37),
+    surfaceStrong = Color(0xFF463A49),
+    line = Color(0xFF655767),
+    ink = Color(0xFFF8F0F5),
+    inkSoft = Color(0xFFE0D5E3),
+    inkMuted = Color(0xFFB9AABF),
+    brand = Color(0xFFFF9A7E),
+    brandSolid = Color(0xFFFF9A7E),
+    brandSoft = Color(0xFF642B1C),
+    onBrand = Color(0xFF32130B),
+    accent = Color(0xFFC99BFF),
+    success = Color(0xFF79D69D),
+    warning = Color(0xFFF2C36D),
+    danger = Color(0xFFFFB4AB),
+    onDanger = Color(0xFF690005)
 )
 
 private val LifeOSShapes = Shapes(
@@ -72,8 +62,14 @@ private val LifeOSShapes = Shapes(
 
 @Composable
 fun LifeOSTheme(content: @Composable () -> Unit) {
-    MaterialTheme(
-        colorScheme = if (isSystemInDarkTheme()) DarkColors else LightColors,
+    val dark = isSystemInDarkTheme()
+    LumenTheme(
+        darkTheme = dark,
+        values = LumenThemeValues(
+            colors = if (dark) StrataDark else StrataLight,
+            isDark = dark,
+            appearance = LumenAppearance(material = LumenSurfaceMaterial.Solid)
+        ),
         shapes = LifeOSShapes,
         content = content
     )
