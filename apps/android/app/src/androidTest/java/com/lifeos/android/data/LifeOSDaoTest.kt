@@ -59,6 +59,20 @@ class LifeOSDaoTest {
         assertEquals(listOf(1, 3, 5), saved.scheduledWeekdays.split(",").map(String::toInt))
     }
 
+
+    @Test
+    fun habitCompletionIsScopedToLocalDateAndCanBeUndone() = runBlocking {
+        dao.addHabit(HabitEntity(id = "habit-date", title = "Read"))
+        dao.markHabitComplete(HabitCompletionEntity("habit-date", "2026-11-03", 100L))
+        dao.markHabitComplete(HabitCompletionEntity("habit-date", "2026-11-03", 200L))
+
+        assertEquals(1, dao.completionsForDate("2026-11-03").first().size)
+        assertTrue(dao.completionsForDate("2026-11-04").first().isEmpty())
+
+        dao.undoHabitCompletion("habit-date", "2026-11-03")
+        assertTrue(dao.completionsForDate("2026-11-03").first().isEmpty())
+    }
+
     @Test
     fun tasksAndGoalsPersistIndependently() = runBlocking {
         dao.addTask(TaskEntity(id = "task-1", title = "Plan week"))
