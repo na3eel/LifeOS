@@ -71,6 +71,13 @@ struct TodayView: View {
             .background(Color.lifeOSCanvas)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("LifeOS")
+                        .font(.system(.headline, design: .rounded).weight(.black))
+                        .tracking(-0.7)
+                        .foregroundStyle(Color.lifeOSInk)
+                        .accessibilityLabel("LifeOS")
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { isShowingAddHabit = true } label: {
                         Image(systemName: "plus").font(.body.weight(.semibold))
