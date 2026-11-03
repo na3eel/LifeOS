@@ -7,7 +7,7 @@ final class SwiftDataPersistenceTests: XCTestCase {
     private func makeContainer() throws -> ModelContainer {
         let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
         return try ModelContainer(
-            for: Habit.self, LifeArea.self, LifeTask.self, LifeGoal.self,
+            for: Habit.self, HabitCompletion.self, LifeArea.self, LifeTask.self, LifeGoal.self,
             configurations: configuration
         )
     }
@@ -48,6 +48,25 @@ final class SwiftDataPersistenceTests: XCTestCase {
         XCTAssertEqual(saved.targetValue, 30)
         XCTAssertEqual(saved.targetUnit, "minutes")
         XCTAssertEqual(saved.scheduledWeekdays, "1,3,5")
+    }
+
+
+    func testHabitCompletionIsUniquePerLocalDateAndCanBeUndone() throws {
+        let container = try makeContainer()
+        let context = container.mainContext
+        let habit = Habit(title: "Read")
+        context.insert(habit)
+        let first = HabitCompletion(habitID: habit.id, localDate: "2026-11-03")
+        context.insert(first)
+        try context.save()
+
+        let saved = try context.fetch(FetchDescriptor<HabitCompletion>())
+        XCTAssertEqual(saved.count, 1)
+        XCTAssertEqual(saved.first?.localDate, "2026-11-03")
+
+        context.delete(saved[0])
+        try context.save()
+        XCTAssertTrue(try context.fetch(FetchDescriptor<HabitCompletion>()).isEmpty)
     }
 
     func testAreasTasksAndGoalsPersist() throws {
