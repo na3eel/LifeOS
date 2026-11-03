@@ -161,63 +161,191 @@ private struct HabitRow: View {
 }
 
 private struct AddHabitView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\\.modelContext) private var modelContext
+    @Environment(\\.dismiss) private var dismiss
     @State private var title = ""
     @State private var detail = ""
+    @State private var area = "Mind"
+    @State private var search = ""
+    @State private var showingPresets = true
     private let habit: Habit?
     @FocusState private var titleFocused: Bool
+
+    private let areas = ["Body", "Mind", "Soul", "Social", "Career"]
+    private let presets: [(String, String, String, String)] = [
+        ("Wake up at 05:00", "Mind", "Build a consistent morning routine", "Routine"),
+        ("Gym / Workout", "Body", "Move your body and build strength", "Health"),
+        ("Reading / Learning", "Mind", "Spend time learning something new", "Growth"),
+        ("Budget tracking", "Career", "Review spending and stay intentional", "Life"),
+        ("Project work", "Career", "Make progress on an important project", "Work"),
+        ("No alcohol", "Body", "A private daily commitment", "Health"),
+        ("Social media detox", "Mind", "Be intentional with screen time", "Focus"),
+        ("Goal journaling", "Soul", "Reflect and write down your goals", "Growth"),
+        ("Cold shower", "Body", "A small daily challenge", "Health"),
+        ("Avoid pornography", "Mind", "A private personal commitment", "Focus")
+    ]
 
     init(habit: Habit? = nil) {
         self.habit = habit
         _title = State(initialValue: habit?.title ?? "")
         _detail = State(initialValue: habit?.detail ?? "")
+        _area = State(initialValue: habit?.area ?? "Mind")
+        _showingPresets = State(initialValue: habit == nil)
     }
 
     private var canSave: Bool { !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+    private var filteredPresets: [(String, String, String, String)] {
+        guard !search.isEmpty else { return presets }
+        return presets.filter { $0.0.localizedCaseInsensitiveContains(search) || $0.3.localizedCaseInsensitiveContains(search) }
+    }
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("Habit") {
-                    TextField("e.g. Walk for 20 minutes", text: $title)
-                        .focused($titleFocused)
-                        .textInputAutocapitalization(.sentences)
-                        .submitLabel(.next)
-                    TextField("Optional note or life area", text: $detail, axis: .vertical)
-                        .lineLimit(2...4)
-                }
-                Section {
-                    Text("Start small. You can edit this habit later.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .scrollDismissesKeyboard(.interactively)
-            .navigationTitle(habit == nil ? "New habit" : "Edit habit")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    VStack(alignment: .leading, spacing: 7) {
+                        Text(habit == nil ? "BUILD A HABIT" : "REFINE YOUR HABIT")
+                            .font(.caption.weight(.bold)).tracking(1.2)
+                            .foregroundStyle(Color.lifeOSBrand)
+                        Text(habit == nil ? "Small steps. Better days." : "Make it yours.")
+                            .font(.system(.largeTitle, design: .rounded).weight(.semibold))
+                            .foregroundStyle(Color.lifeOSInk)
+                        Text("Choose a starting point, then shape it around your life.")
+                            .font(.subheadline).foregroundStyle(.secondary)
+                    }
+
+                    if habit == nil {
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                sectionHeading("START WITH A TEMPLATE")
+                                Spacer()
+                                Button(showingPresets ? "Hide" : "Browse") { showingPresets.toggle() }
+                                    .font(.subheadline.weight(.semibold))
+                                    .tint(Color.lifeOSBrand)
+                            }
+                            if showingPresets {
+                                HStack(spacing: 10) {
+                                    Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                                    TextField("Search ideas", text: $search)
+                                        .textInputAutocapitalization(.never)
+                                }
+                                .padding(13)
+                                .background(Color.lifeOSCard, in: RoundedRectangle(cornerRadius: 14))
+                                LazyVStack(spacing: 9) {
+                                    ForEach(filteredPresets, id: \\.0) { preset in
+                                        Button {
+                                            title = preset.0
+                                            area = preset.1
+                                            detail = preset.2
+                                            showingPresets = false
+                                        } label: {
+                                            HStack(spacing: 12) {
+                                                VStack(alignment: .leading, spacing: 4) {
+                                                    Text(preset.0).font(.subheadline.weight(.semibold)).foregroundStyle(Color.lifeOSInk)
+                                                    Text(preset.2).font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.leading)
+                                                }
+                                                Spacer(minLength: 4)
+                                                Text(preset.1.uppercased()).font(.system(size: 9, weight: .bold)).tracking(0.5)
+                                                    .foregroundStyle(Color.lifeOSBrand)
+                                            }
+                                            .padding(14)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .background(title == preset.0 ? Color.lifeOSAccentSoft : Color.lifeOSCard, in: RoundedRectangle(cornerRadius: 15))
+                                            .overlay(RoundedRectangle(cornerRadius: 15).stroke(title == preset.0 ? Color.lifeOSBrand.opacity(0.55) : Color.lifeOSInk.opacity(0.06), lineWidth: 1))
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        sectionHeading("YOUR HABIT")
+                        VStack(spacing: 0) {
+                            TextField("e.g. Walk for 20 minutes", text: $title)
+                                .focused($titleFocused)
+                                .textInputAutocapitalization(.sentences)
+                                .submitLabel(.next)
+                                .padding(15)
+                            Divider().padding(.leading, 15)
+                            TextField("A note (optional)", text: $detail, axis: .vertical)
+                                .lineLimit(2...4)
+                                .padding(15)
+                        }
+                        .background(Color.lifeOSCard, in: RoundedRectangle(cornerRadius: 16))
+                        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.lifeOSInk.opacity(0.07), lineWidth: 1))
+                    }
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        sectionHeading("LIFE AREA")
+                        Text("Where does this habit support you?")
+                            .font(.caption).foregroundStyle(.secondary)
+                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 9) {
+                            ForEach(areas, id: \\.self) { choice in
+                                Button { area = choice } label: {
+                                    HStack {
+                                        Text(choice).font(.subheadline.weight(.medium))
+                                        Spacer()
+                                        if area == choice { Image(systemName: "checkmark").font(.caption.weight(.bold)) }
+                                    }
+                                    .foregroundStyle(area == choice ? Color.lifeOSBrand : Color.lifeOSInk)
+                                    .padding(.horizontal, 14).frame(height: 46)
+                                    .background(area == choice ? Color.lifeOSAccentSoft : Color.lifeOSCard, in: RoundedRectangle(cornerRadius: 13))
+                                    .overlay(RoundedRectangle(cornerRadius: 13).stroke(area == choice ? Color.lifeOSBrand.opacity(0.55) : Color.lifeOSInk.opacity(0.07), lineWidth: 1))
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+
+                    Text("You can adjust your habit any time.")
+                        .font(.caption).foregroundStyle(.secondary)
+                    Button {
                         let cleanTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
                         let cleanDetail = detail.trimmingCharacters(in: .whitespacesAndNewlines)
                         guard !cleanTitle.isEmpty else { return }
                         if let habit {
                             habit.title = cleanTitle
                             habit.detail = cleanDetail
+                            habit.area = area
                         } else {
-                            modelContext.insert(Habit(title: cleanTitle, detail: cleanDetail))
+                            modelContext.insert(Habit(title: cleanTitle, detail: cleanDetail, area: area))
                         }
                         dismiss()
+                    } label: {
+                        Text(habit == nil ? "Create habit" : "Save changes")
+                            .font(.body.weight(.semibold))
+                            .frame(maxWidth: .infinity).frame(height: 54)
+                            .foregroundStyle(.white)
+                            .background(Color.lifeOSBrand, in: RoundedRectangle(cornerRadius: 16))
                     }
                     .disabled(!canSave)
+                    .opacity(canSave ? 1 : 0.45)
+                    .padding(.top, 2)
+                }
+                .padding(20)
+                .frame(maxWidth: 620)
+                .frame(maxWidth: .infinity)
+            }
+            .background(Color.lifeOSCanvas)
+            .scrollDismissesKeyboard(.interactively)
+            .navigationTitle(habit == nil ? "New habit" : "Edit habit")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }.tint(Color.lifeOSInk)
                 }
             }
             .onAppear { if habit == nil { titleFocused = true } }
         }
+        .presentationDetents([.large])
+        .presentationDragIndicator(.visible)
+    }
+
+    private func sectionHeading(_ value: String) -> some View {
+        Text(value).font(.caption.weight(.bold)).tracking(1)
+            .foregroundStyle(Color.lifeOSInk.opacity(0.72))
     }
 }
 
