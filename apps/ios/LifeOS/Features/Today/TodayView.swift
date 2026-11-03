@@ -162,8 +162,8 @@ private struct HabitRow: View {
 }
 
 private struct AddHabitView: View {
-    @Environment(\\.modelContext) private var modelContext
-    @Environment(\\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
     @State private var title = ""
     @State private var detail = ""
     @State private var area = "Mind"
@@ -233,7 +233,7 @@ private struct AddHabitView: View {
                                 .padding(13)
                                 .background(Color.lifeOSCard, in: RoundedRectangle(cornerRadius: 14))
                                 LazyVStack(spacing: 9) {
-                                    ForEach(filteredPresets, id: \\.0) { preset in
+                                    ForEach(filteredPresets, id: \.0) { preset in
                                         Button {
                                             title = preset.0
                                             area = preset.1
@@ -283,7 +283,7 @@ private struct AddHabitView: View {
                         Text("Where does this habit support you?")
                             .font(.caption).foregroundStyle(.secondary)
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 9) {
-                            ForEach(areas, id: \\.self) { choice in
+                            ForEach(areas, id: \.self) { choice in
                                 Button { area = choice } label: {
                                     HStack {
                                         Text(choice).font(.subheadline.weight(.medium))
