@@ -8,7 +8,7 @@ struct LifeOSApp: App {
         WindowGroup {
             LifeOSThemedRoot()
         }
-        .modelContainer(for: [Habit.self, LifeArea.self, LifeTask.self, LifeGoal.self])
+        .modelContainer(for: [Habit.self, HabitCompletion.self, LifeArea.self, LifeTask.self, LifeGoal.self])
     }
 }
 
