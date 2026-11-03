@@ -57,6 +57,7 @@ struct TodayView: View {
                             }
                         }
                         .background(Color.lifeOSCard, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).stroke(Color.lifeOSBorder.opacity(0.65), lineWidth: 1))
                     }
 
                     Text("A little progress, repeated.")
@@ -90,7 +91,7 @@ struct TodayView: View {
                             .frame(minWidth: 44, minHeight: 44)
                     }
                     .accessibilityLabel("Add a habit")
-                    .modifier(GlassControlIfAvailable())
+                    .tint(Color.lifeOSBrand).background(Color.lifeOSAccentSoft, in: Circle())
                 }
             }
             .sheet(isPresented: $isShowingAddHabit) {
@@ -362,8 +363,8 @@ private struct GlassControlIfAvailable: ViewModifier {
 
 
 private struct LifeOSBrandMark: View {
-    private let orange = Color(red: 0.953, green: 0.420, blue: 0.031)
-    private let ink = Color(red: 0.196, green: 0.063, blue: 0.020)
+    private let orange = Color(hex: 0xDB5635)
+    private let ink = Color(hex: 0x1F1724)
 
     var body: some View {
         GeometryReader { proxy in
