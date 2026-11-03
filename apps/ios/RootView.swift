@@ -19,10 +19,10 @@ struct RootView: View {
                 .tabItem { Label("Calendar", systemImage: "calendar") }
                 .tag(LifeOSTab.calendar)
             PlaceholderView(title: "Insights", symbol: "chart.bar.xaxis")
-                .tabItem { Label("Insights", systemImage: "chart.bar.xaxis") }
+                .tabItem { Label("Insights", systemImage: "chart.xyaxis.line") }
                 .tag(LifeOSTab.insights)
-            PlaceholderView(title: "AI Coach", symbol: "sparkles")
-                .tabItem { Label("Coach", systemImage: "sparkles") }
+            PlaceholderView(title: "AI Coach", symbol: "figure.mind.and.body")
+                .tabItem { Label("Coach", systemImage: "figure.mind.and.body") }
                 .tag(LifeOSTab.coach)
         }
         .background(Color.lifeOSCanvas)
