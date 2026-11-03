@@ -23,7 +23,7 @@ private val StrataOrange = Color(0xFFDB5635)
 private val StrataOrangeDeep = Color(0xFFB83F25)
 private val StrataOrangeSoft = Color(0xFFFCE4DA)
 private val StrataPurple = Color(0xFF9828F6)
-private val StrataPurpleSoft = Color(0xFFFCE4DA)
+private val StrataPurpleSoft = Color(0xFFF0E4FA)
 private val StrataLine = Color(0xFFD6C5BC)
 private val StrataMutedInk = Color(0xFF6F626B)
 
@@ -37,7 +37,7 @@ private val StrataDarkLine = Color(0xFF655767)
 private val StrataDarkOrange = Color(0xFFFF9A7E)
 private val StrataDarkOrangeSoft = Color(0xFF642B1C)
 private val StrataDarkPurple = Color(0xFFC99BFF)
-private val StrataDarkPurpleSoft = Color(0xFF642B1C)
+private val StrataDarkPurpleSoft = Color(0xFF4B2670)
 
 private val StrataLightMaterial = lightColorScheme(
     primary = StrataOrange,
