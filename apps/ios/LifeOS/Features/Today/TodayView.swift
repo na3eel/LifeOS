@@ -38,7 +38,7 @@ struct TodayView: View {
                         Text(selectedDate.formatted(.dateTime.weekday(.wide).month(.wide).day()).uppercased())
                             .font(.caption.weight(.semibold))
                             .tracking(1.1)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.lifeOSMuted)
                         Text(Calendar.current.isDateInToday(selectedDate) ? "Make today count." : "Your day, your pace.")
                             .font(.largeTitle.weight(.semibold))
                             .fixedSize(horizontal: false, vertical: true)
@@ -53,7 +53,7 @@ struct TodayView: View {
                         Spacer()
                         Text("\(completedCount) of \(todayHabits.count)")
                             .font(.subheadline.weight(.medium))
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.lifeOSMuted)
                     }
 
                     if todayHabits.isEmpty {
@@ -89,7 +89,7 @@ struct TodayView: View {
 
                     Text("A little progress, repeated.")
                         .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Color.lifeOSMuted)
                         .padding(.bottom, 24)
                 }
                 .padding(.horizontal, 20)
@@ -194,13 +194,13 @@ struct TodayView: View {
             Text("DAILY RHYTHM")
                 .font(.caption.weight(.semibold))
                 .tracking(1)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color.lifeOSMuted)
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text("\(completedCount)")
                     .font(.system(size: 36, weight: .semibold, design: .rounded))
                 Text("/ \(todayHabits.count)")
                     .font(.title3)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Color.lifeOSMuted)
             }
             ProgressView(value: progress).tint(Color.lifeOSBrand)
                 .accessibilityLabel("Daily completion")
@@ -223,15 +223,15 @@ private struct HabitRow: View {
             VStack(alignment: .leading, spacing: 5) {
                 Text(habit.title)
                     .font(.body.weight(.medium))
-                    .foregroundStyle(isComplete ? .secondary : .primary)
+                    .foregroundStyle(isComplete ? Color.lifeOSMuted : Color.lifeOSInk)
                     .strikethrough(isComplete)
                     .fixedSize(horizontal: false, vertical: true)
                 if !habit.detail.isEmpty {
-                    Text(habit.detail).font(.subheadline).foregroundStyle(.secondary)
+                    Text(habit.detail).font(.subheadline).foregroundStyle(Color.lifeOSMuted)
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 Text(habit.targetUnit.isEmpty ? habit.area : "\(habit.targetValue.formatted()) \(habit.targetUnit) · \(habit.area)")
-                    .font(.caption).foregroundStyle(.secondary)
+                    .font(.caption).foregroundStyle(Color.lifeOSMuted)
             }
             Spacer(minLength: 8)
             Button(action: onEdit) {
@@ -307,7 +307,7 @@ private struct AddHabitView: View {
                             .font(.system(.largeTitle, design: .rounded).weight(.semibold))
                             .foregroundStyle(Color.lifeOSInk)
                         Text("Choose a starting point, then shape it around your life.")
-                            .font(.subheadline).foregroundStyle(.secondary)
+                            .font(.subheadline).foregroundStyle(Color.lifeOSMuted)
                     }
 
                     if habit == nil {
@@ -321,7 +321,7 @@ private struct AddHabitView: View {
                             }
                             if showingPresets {
                                 HStack(spacing: 10) {
-                                    Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                                    Image(systemName: "magnifyingglass").foregroundStyle(Color.lifeOSMuted)
                                     TextField("Search ideas", text: $search)
                                         .textInputAutocapitalization(.never)
                                 }
@@ -343,7 +343,7 @@ private struct AddHabitView: View {
                                             HStack(spacing: 12) {
                                                 VStack(alignment: .leading, spacing: 4) {
                                                     Text(preset.0).font(.subheadline.weight(.semibold)).foregroundStyle(Color.lifeOSInk)
-                                                    Text(preset.2).font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.leading)
+                                                    Text(preset.2).font(.caption).foregroundStyle(Color.lifeOSMuted).multilineTextAlignment(.leading)
                                                 }
                                                 Spacer(minLength: 4)
                                                 Text(preset.1.uppercased()).font(.system(size: 9, weight: .bold)).tracking(0.5)
@@ -370,13 +370,13 @@ private struct AddHabitView: View {
                                 .padding(15)
                         }
                         .background(Color.lifeOSCard, in: RoundedRectangle(cornerRadius: 16))
-                        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.lifeOSInk.opacity(0.07), lineWidth: 1))
+                        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.lifeOSBorder.opacity(0.75), lineWidth: 1))
                     }
 
                     VStack(alignment: .leading, spacing: 12) {
                         sectionHeading("LIFE AREA")
                         Text("Where does this habit support you?")
-                            .font(.caption).foregroundStyle(.secondary)
+                            .font(.caption).foregroundStyle(Color.lifeOSMuted)
                         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 9) {
                             ForEach(areas, id: \.self) { choice in
                                 Button { area = choice } label: {
@@ -388,7 +388,7 @@ private struct AddHabitView: View {
                                     .foregroundStyle(area == choice ? Color.lifeOSBrand : Color.lifeOSInk)
                                     .padding(.horizontal, 14).frame(height: 46)
                                     .background(area == choice ? Color.lifeOSAccentSoft : Color.lifeOSCard, in: RoundedRectangle(cornerRadius: 13))
-                                    .overlay(RoundedRectangle(cornerRadius: 13).stroke(area == choice ? Color.lifeOSBrand.opacity(0.55) : Color.lifeOSInk.opacity(0.07), lineWidth: 1))
+                                    .overlay(RoundedRectangle(cornerRadius: 13).stroke(area == choice ? Color.lifeOSBrand.opacity(0.55) : Color.lifeOSBorder.opacity(0.75), lineWidth: 1))
                                 }
                                 .buttonStyle(.plain)
                             }
@@ -398,7 +398,7 @@ private struct AddHabitView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         sectionHeading("MEASURABLE TARGET")
                         Text("Use 1 with no unit for a simple yes/no habit.")
-                            .font(.caption).foregroundStyle(.secondary)
+                            .font(.caption).foregroundStyle(Color.lifeOSMuted)
                         HStack(spacing: 10) {
                             TextField("Target", text: $targetValue)
                                 .keyboardType(.decimalPad)
@@ -409,14 +409,14 @@ private struct AddHabitView: View {
                                 .background(Color.lifeOSCard, in: RoundedRectangle(cornerRadius: 13))
                         }
                         if let value = Double(targetValue), value <= 0 {
-                            Text("Target must be greater than zero.").font(.caption).foregroundStyle(.red)
+                            Text("Target must be greater than zero.").font(.caption).foregroundStyle(Color.lifeOSDanger)
                         }
                     }
 
                     VStack(alignment: .leading, spacing: 12) {
                         sectionHeading("REPEAT ON")
                         Text("Choose the days this habit is due.")
-                            .font(.caption).foregroundStyle(.secondary)
+                            .font(.caption).foregroundStyle(Color.lifeOSMuted)
                         HStack(spacing: 6) {
                             ForEach(1...7, id: \.self) { day in
                                 let labels = ["M", "T", "W", "T", "F", "S", "S"]
@@ -437,12 +437,12 @@ private struct AddHabitView: View {
                             }
                         }
                         if weekdays.isEmpty {
-                            Text("Choose at least one day.").font(.caption).foregroundStyle(.red)
+                            Text("Choose at least one day.").font(.caption).foregroundStyle(Color.lifeOSDanger)
                         }
                     }
 
                     Text("You can adjust your habit any time.")
-                        .font(.caption).foregroundStyle(.secondary)
+                        .font(.caption).foregroundStyle(Color.lifeOSMuted)
                     LumenButton(intent: .primary, size: .lg, disabled: !canSave || weekdays.isEmpty || (Double(targetValue) ?? 0) <= 0, action: {
                         let cleanTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
                         let cleanDetail = detail.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -490,21 +490,9 @@ private struct AddHabitView: View {
     }
 }
 
-private struct GlassControlIfAvailable: ViewModifier {
-    @ViewBuilder
-    func body(content: Content) -> some View {
-        if #available(iOS 26.0, *) {
-            content.glassEffect(.regular.interactive())
-        } else {
-            content.background(.regularMaterial, in: Circle())
-        }
-    }
-}
-
-
 private struct LifeOSBrandMark: View {
-    private let orange = Color(hex: 0xDB5635)
-    private let ink = Color(hex: 0x1F1724)
+    private let orange = Color.lifeOSBrand
+    private let ink = Color.lifeOSInk
 
     var body: some View {
         GeometryReader { proxy in

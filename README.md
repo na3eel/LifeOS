@@ -7,11 +7,8 @@ LifeOS is a mobile-first, freemium personal operating system for habits, life ar
 - Platforms: iOS and Android (mobile first)
 - Product: SaaS, freemium
 - Design: custom, Strata-inspired; do not copy proprietary assets or UI
-- Theme: approved Strata visual system; adaptive light/dark implementations must preserve its semantic tokens and visual hierarchy
-- Theme source of truth: [Approved LifeOS Strata Theme](docs/design/lifeos-approved-theme.md)
-- Android: Kotlin + Jetpack Compose (native)
-- iOS: Swift + SwiftUI (native; preserve native platform behavior without introducing glassmorphism)
-- Design system: Lumen native Compose and SwiftUI components
+- Theme: adaptive light/dark with manual override
+- Frontend: React Native + Expo + TypeScript
 - Backend: ASP.NET Core 10 / C# 14
 - Persistence: PostgreSQL + Entity Framework Core
 - Architecture: modular monolith, offline-first mobile experience
@@ -19,12 +16,10 @@ LifeOS is a mobile-first, freemium personal operating system for habits, life ar
 
 ## Repository layout
 
-- `apps/android` — native Kotlin / Jetpack Compose application
-- `apps/ios` — native Swift / SwiftUI application
+- `apps/mobile` — Expo mobile application
 - `src/backend` — .NET solution and API
 - `contracts/openapi` — shared API contract artifacts
 - `docs/architecture` — architecture decisions and diagrams
-- `docs/design` — approved visual direction and design decisions
 - `docs/product` — product requirements and UX decisions
 
 ## Parallel delivery
@@ -34,7 +29,7 @@ Frontend and backend work proceed independently against the shared OpenAPI contr
 ## Initial milestone
 
 1. Establish architecture, coding standards and API contracts.
-2. Build native Android and iOS design systems, navigation and dashboard shells.
+2. Build mobile design system, navigation and dashboard shell.
 3. Build backend solution, health endpoint, persistence foundation and first domain modules.
 4. Integrate the dashboard and habit workflows end-to-end.
 
