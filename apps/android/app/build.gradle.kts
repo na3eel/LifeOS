@@ -12,7 +12,8 @@ android {
  buildFeatures { compose=true }
 }
 dependencies {
- val bom=platform("androidx.compose:compose-bom:2025.08.00")
+ // Keep Lumen and app dependencies aligned to the Compose version supported by AGP 8.10.1 / SDK 36.
+ val bom=enforcedPlatform("androidx.compose:compose-bom:2025.08.00")
  implementation(bom)
  implementation("androidx.activity:activity-compose:1.10.1")
  implementation("androidx.compose.ui:ui")
