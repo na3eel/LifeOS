@@ -1,4 +1,8 @@
 name: LifeOS
+packages:
+  Lumen:
+    url: https://github.com/santi020k/lumen
+    from: 4.3.0
 options:
   bundleIdPrefix: com.lifeos
   deploymentTarget:
@@ -14,6 +18,9 @@ targets:
     platform: iOS
     sources:
       - path: LifeOS
+    dependencies:
+      - package: Lumen
+        product: LumenUI
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.lifeos.ios
