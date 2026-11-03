@@ -9,14 +9,31 @@ final class Habit: Identifiable {
     var area: String
     var isComplete: Bool
     var createdAt: Date
+    var targetValue: Double
+    var targetUnit: String
+    /// ISO weekday numbers: Monday = 1 ... Sunday = 7.
+    var scheduledWeekdays: String
 
-    init(id: UUID = UUID(), title: String, detail: String = "", area: String = "Mind", isComplete: Bool = false, createdAt: Date = .now) {
+    init(
+        id: UUID = UUID(),
+        title: String,
+        detail: String = "",
+        area: String = "Mind",
+        isComplete: Bool = false,
+        createdAt: Date = .now,
+        targetValue: Double = 1,
+        targetUnit: String = "",
+        scheduledWeekdays: String = "1,2,3,4,5,6,7"
+    ) {
         self.id = id
         self.title = title
         self.detail = detail
         self.area = area
         self.isComplete = isComplete
         self.createdAt = createdAt
+        self.targetValue = targetValue
+        self.targetUnit = targetUnit
+        self.scheduledWeekdays = scheduledWeekdays
     }
 }
 
