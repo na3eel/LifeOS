@@ -8,9 +8,10 @@ struct TodayView: View {
     @Query private var completions: [HabitCompletion]
     @State private var isShowingAddHabit = false
     @State private var editingHabit: Habit?
+    @State private var selectedDate = Calendar.current.startOfDay(for: .now)
 
     private var todayHabits: [Habit] {
-        let calendarWeekday = Calendar.current.component(.weekday, from: .now)
+        let calendarWeekday = Calendar.current.component(.weekday, from: selectedDate)
         let isoWeekday = ((calendarWeekday + 5) % 7) + 1
         return habits.filter { $0.scheduledWeekdays.split(separator: ",").compactMap { Int($0) }.contains(isoWeekday) }
     }
@@ -19,7 +20,7 @@ struct TodayView: View {
         formatter.calendar = Calendar.current
         formatter.timeZone = .current
         formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.string(from: .now)
+        return formatter.string(from: selectedDate)
     }
     private var completedHabitIDs: Set<UUID> {
         Set(completions.filter { $0.localDate == todayKey }.map(\.habitID))
@@ -34,14 +35,16 @@ struct TodayView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text(Date.now.formatted(.dateTime.weekday(.wide).month(.wide).day()).uppercased())
+                        Text(selectedDate.formatted(.dateTime.weekday(.wide).month(.wide).day()).uppercased())
                             .font(.caption.weight(.semibold))
                             .tracking(1.1)
                             .foregroundStyle(.secondary)
-                        Text("Make today count.")
+                        Text(Calendar.current.isDateInToday(selectedDate) ? "Make today count." : "Your day, your pace.")
                             .font(.largeTitle.weight(.semibold))
                             .fixedSize(horizontal: false, vertical: true)
                     }
+
+                    weekNavigator
 
                     rhythmCard
 
@@ -127,6 +130,65 @@ struct TodayView: View {
         }
     }
 
+    private var weekDates: [Date] {
+        let calendar = Calendar.current
+        let weekday = calendar.component(.weekday, from: selectedDate)
+        let daysFromMonday = (weekday + 5) % 7
+        let monday = calendar.date(byAdding: .day, value: -daysFromMonday, to: selectedDate) ?? selectedDate
+        return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: monday) }
+    }
+
+    private var weekNavigator: some View {
+        VStack(spacing: 10) {
+            HStack {
+                Button {
+                    selectedDate = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: selectedDate) ?? selectedDate
+                } label: {
+                    Image(systemName: "chevron.left").frame(width: 44, height: 44)
+                }
+                .accessibilityLabel("Previous week")
+                Spacer()
+                Text(weekDates.first?.formatted(.dateTime.day().month(.abbreviated)) ?? "")
+                    + Text(" – ")
+                    + Text(weekDates.last?.formatted(.dateTime.day().month(.abbreviated)) ?? "")
+                Spacer()
+                Button {
+                    selectedDate = Calendar.current.date(byAdding: .weekOfYear, value: 1, to: selectedDate) ?? selectedDate
+                } label: {
+                    Image(systemName: "chevron.right").frame(width: 44, height: 44)
+                }
+                .accessibilityLabel("Next week")
+            }
+            HStack(spacing: 5) {
+                ForEach(weekDates, id: \\.self) { date in
+                    let isSelected = Calendar.current.isDate(date, inSameDayAs: selectedDate)
+                    let isToday = Calendar.current.isDateInToday(date)
+                    Button {
+                        selectedDate = Calendar.current.startOfDay(for: date)
+                    } label: {
+                        VStack(spacing: 4) {
+                            Text(date.formatted(.dateTime.weekday(.narrow)))
+                                .font(.caption2.weight(.medium))
+                            Text(date.formatted(.dateTime.day()))
+                                .font(.subheadline.weight(.semibold))
+                            if isToday {
+                                Circle().fill(isSelected ? Color.white : Color.lifeOSBrand).frame(width: 4, height: 4)
+                            } else {
+                                Circle().fill(.clear).frame(width: 4, height: 4)
+                            }
+                        }
+                        .foregroundStyle(isSelected ? Color.white : Color.lifeOSInk)
+                        .frame(maxWidth: .infinity, minHeight: 58)
+                        .background(isSelected ? Color.lifeOSBrand : Color.lifeOSCard, in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(date.formatted(.dateTime.weekday(.wide).month(.wide).day()))
+                    .accessibilityAddTraits(isSelected ? .isSelected : [])
+                }
+            }
+        }
+    }
+
     private var rhythmCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("DAILY RHYTHM")
@@ -136,7 +198,7 @@ struct TodayView: View {
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Text("\(completedCount)")
                     .font(.system(size: 36, weight: .semibold, design: .rounded))
-                Text("/ \(habits.count)")
+                Text("/ \(todayHabits.count)")
                     .font(.title3)
                     .foregroundStyle(.secondary)
             }
