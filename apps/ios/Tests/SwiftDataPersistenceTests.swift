@@ -32,6 +32,24 @@ final class SwiftDataPersistenceTests: XCTestCase {
         XCTAssertTrue(try context.fetch(FetchDescriptor<Habit>()).isEmpty)
     }
 
+    func testHabitTargetAndRecurringWeekdaysPersist() throws {
+        let container = try makeContainer()
+        let context = container.mainContext
+        let habit = Habit(
+            title: "Walk",
+            targetValue: 30,
+            targetUnit: "minutes",
+            scheduledWeekdays: "1,3,5"
+        )
+        context.insert(habit)
+        try context.save()
+
+        let saved = try XCTUnwrap(context.fetch(FetchDescriptor<Habit>()).first)
+        XCTAssertEqual(saved.targetValue, 30)
+        XCTAssertEqual(saved.targetUnit, "minutes")
+        XCTAssertEqual(saved.scheduledWeekdays, "1,3,5")
+    }
+
     func testAreasTasksAndGoalsPersist() throws {
         let container = try makeContainer()
         let context = container.mainContext
