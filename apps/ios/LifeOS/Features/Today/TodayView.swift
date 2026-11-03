@@ -5,6 +5,7 @@ struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Habit.createdAt, order: .forward) private var habits: [Habit]
     @State private var isShowingAddHabit = false
+    @State private var editingHabit: Habit?
 
     private var completedCount: Int { habits.filter(\.isComplete).count }
     private var progress: Double {
@@ -49,7 +50,7 @@ struct TodayView: View {
                     } else {
                         VStack(spacing: 0) {
                             ForEach(habits) { habit in
-                                HabitRow(habit: habit)
+                                HabitRow(habit: habit) { editingHabit = habit }
                                 if habit.id != habits.last?.id {
                                     Divider().padding(.leading, 18)
                                 }
@@ -95,6 +96,9 @@ struct TodayView: View {
             .sheet(isPresented: $isShowingAddHabit) {
                 AddHabitView()
             }
+            .sheet(item: $editingHabit) { habit in
+                AddHabitView(habit: habit)
+            }
         }
     }
 
@@ -122,8 +126,8 @@ struct TodayView: View {
 }
 
 private struct HabitRow: View {
-    @Environment(\.modelContext) private var modelContext
     @Bindable var habit: Habit
+    let onEdit: () -> Void
 
     var body: some View {
         HStack(spacing: 14) {
@@ -139,6 +143,12 @@ private struct HabitRow: View {
                 }
             }
             Spacer(minLength: 8)
+            Button(action: onEdit) {
+                Image(systemName: "pencil")
+                    .frame(width: 44, height: 44)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Edit \(habit.title)")
             Toggle("Mark \(habit.title) complete", isOn: $habit.isComplete)
                 .labelsHidden()
                 .tint(Color.lifeOSBrand)
@@ -155,7 +165,14 @@ private struct AddHabitView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var title = ""
     @State private var detail = ""
+    private let habit: Habit?
     @FocusState private var titleFocused: Bool
+
+    init(habit: Habit? = nil) {
+        self.habit = habit
+        _title = State(initialValue: habit?.title ?? "")
+        _detail = State(initialValue: habit?.detail ?? "")
+    }
 
     private var canSave: Bool { !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
 
@@ -177,7 +194,7 @@ private struct AddHabitView: View {
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .navigationTitle("New habit")
+            .navigationTitle(habit == nil ? "New habit" : "Edit habit")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -188,13 +205,18 @@ private struct AddHabitView: View {
                         let cleanTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
                         let cleanDetail = detail.trimmingCharacters(in: .whitespacesAndNewlines)
                         guard !cleanTitle.isEmpty else { return }
-                        modelContext.insert(Habit(title: cleanTitle, detail: cleanDetail))
+                        if let habit {
+                            habit.title = cleanTitle
+                            habit.detail = cleanDetail
+                        } else {
+                            modelContext.insert(Habit(title: cleanTitle, detail: cleanDetail))
+                        }
                         dismiss()
                     }
                     .disabled(!canSave)
                 }
             }
-            .onAppear { titleFocused = true }
+            .onAppear { if habit == nil { titleFocused = true } }
         }
     }
 }
