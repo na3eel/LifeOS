@@ -43,6 +43,23 @@ class LifeOSDaoTest {
     }
 
     @Test
+    fun habitTargetAndRecurringWeekdaysPersist() = runBlocking {
+        val habit = HabitEntity(
+            id = "habit-target",
+            title = "Walk",
+            targetValue = 30.0,
+            targetUnit = "minutes",
+            scheduledWeekdays = "1,3,5"
+        )
+        dao.addHabit(habit)
+
+        val saved = dao.habits().first().single()
+        assertEquals(30.0, saved.targetValue, 0.0)
+        assertEquals("minutes", saved.targetUnit)
+        assertEquals(listOf(1, 3, 5), saved.scheduledWeekdays.split(",").map(String::toInt))
+    }
+
+    @Test
     fun tasksAndGoalsPersistIndependently() = runBlocking {
         dao.addTask(TaskEntity(id = "task-1", title = "Plan week"))
         dao.addGoal(GoalEntity(id = "goal-1", title = "Run 5 km", progress = 25))
