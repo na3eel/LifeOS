@@ -44,12 +44,13 @@ private val lifeAreas = listOf("Body", "Mind", "Soul", "Social", "Career")
     var kind by remember { mutableStateOf("Habit") }
     var title by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
+    var dueDate by remember { mutableStateOf("") }
     var area by remember { mutableStateOf("Mind") }
     var editingHabit by remember { mutableStateOf<HabitEntity?>(null) }
     val selectedDay = selectedDate.dayOfWeek.value
     val selectedDateHabits = habits.filter { selectedDay in it.scheduledWeekdays.split(",").mapNotNull(String::toIntOrNull) }
     val openAddDialog: (String) -> Unit = { selectedKind ->
-        editingHabit = null; kind = selectedKind; title = ""; note = ""; area = "Mind"; dialog = true
+        editingHabit = null; kind = selectedKind; title = ""; note = ""; dueDate = ""; area = "Mind"; dialog = true
     }
     LaunchedEffect(Unit) { if (areas.isEmpty()) lifeAreas.forEach { dao.addArea(AreaEntity(it.lowercase(), it)) } }
 
@@ -118,7 +119,11 @@ private val lifeAreas = listOf("Body", "Mind", "Soul", "Social", "Career")
                     if (tasks.isEmpty()) Text("No tasks planned yet.")
                 }
                 items(tasks.take(5), key = { it.id }) { t ->
-                    ListItem(headlineContent = { Text(t.title) }, leadingContent = { Checkbox(t.done, { v -> scope.launch { dao.updateTask(t.copy(done = v)) } }) })
+                    ListItem(
+                        headlineContent = { Text(t.title) },
+                        supportingContent = { t.dueDate?.let { Text("Due $it") } },
+                        leadingContent = { Checkbox(t.done, { v -> scope.launch { dao.updateTask(t.copy(done = v)) } }) }
+                    )
                 }
             }
             Tab.Areas -> LazyColumn(Modifier.fillMaxSize().padding(pad).padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -149,7 +154,10 @@ private val lifeAreas = listOf("Body", "Mind", "Soul", "Social", "Career")
                 items(tasks, key = { it.id }) { t ->
                     Card { Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(t.done, { v -> scope.launch { dao.updateTask(t.copy(done = v)) } })
-                        Text(t.title, Modifier.weight(1f))
+                        Column(Modifier.weight(1f)) {
+                            Text(t.title)
+                            t.dueDate?.let { Text("Due $it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                        }
                         IconButton({ scope.launch { dao.deleteTask(t) } }) { Icon(Icons.Outlined.DeleteOutline, "Delete task") }
                     } }
                 }
@@ -187,12 +195,25 @@ private val lifeAreas = listOf("Body", "Mind", "Soul", "Social", "Career")
         }
     ) else if (dialog) AlertDialog(
         onDismissRequest = { dialog = false }, title = { Text("New " + kind.lowercase()) },
-        text = { OutlinedTextField(title, { title = it }, label = { Text("Name") }, singleLine = true) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                OutlinedTextField(title, { title = it }, label = { Text("Name") }, singleLine = true)
+                if (kind == "Task") {
+                    OutlinedTextField(
+                        dueDate, { dueDate = it },
+                        label = { Text("Due date (YYYY-MM-DD, optional)") },
+                        supportingText = { Text("Leave blank for an unscheduled task.") },
+                        singleLine = true,
+                        isError = dueDate.isNotBlank() && runCatching { LocalDate.parse(dueDate) }.isFailure
+                    )
+                }
+            }
+        },
         confirmButton = {
-            TextButton(enabled = title.isNotBlank(), onClick = {
+            TextButton(enabled = title.isNotBlank() && (kind != "Task" || dueDate.isBlank() || runCatching { LocalDate.parse(dueDate) }.isSuccess), onClick = {
                 val clean = title.trim()
                 scope.launch { when (kind) {
-                    "Task" -> dao.addTask(TaskEntity(UUID.randomUUID().toString(), clean))
+                    "Task" -> dao.addTask(TaskEntity(UUID.randomUUID().toString(), clean, dueDate = dueDate.trim().takeIf { it.isNotEmpty() && runCatching { LocalDate.parse(it) }.isSuccess }))
                     "Goal" -> dao.addGoal(GoalEntity(UUID.randomUUID().toString(), clean))
                     "Area" -> dao.addArea(AreaEntity(UUID.randomUUID().toString(), clean))
                 } }
