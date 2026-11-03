@@ -1,25 +1,25 @@
 import SwiftUI
 import UIKit
 
-/// Semantic Strata palette. Light values match docs/design/lifeos-approved-theme.md exactly.
+/// Semantic Tirni palette. Light values match docs/design/lifeos-approved-theme.md exactly.
 /// Dark values are a deliberate native adaptation; every semantic color follows system appearance.
 extension Color {
-    static let lifeOSBrand = strata(light: 0xDB5635, dark: 0xFF9A7E)
-    static let lifeOSSecondary = strata(light: 0x9828F6, dark: 0xC99BFF)
-    static let lifeOSCanvas = strata(light: 0xFFFBF7, dark: 0x171313)
-    static let lifeOSCard = strata(light: 0xF3E8E1, dark: 0x211C24)
-    static let lifeOSSurfaceMuted = strata(light: 0xF3E8E1, dark: 0x342B37)
-    static let lifeOSSurfaceStrong = strata(light: 0xE9DDD6, dark: 0x463A49)
-    static let lifeOSBorder = strata(light: 0xD6C5BC, dark: 0x655767)
-    static let lifeOSInk = strata(light: 0x1F1724, dark: 0xF8F0F5)
-    static let lifeOSInkSoft = strata(light: 0x443843, dark: 0xE0D5E3)
-    static let lifeOSMuted = strata(light: 0x6F626B, dark: 0xB9AABF)
-    static let lifeOSAccentSoft = strata(light: 0xFCE4DA, dark: 0x642B1C)
-    static let lifeOSSecondarySoft = strata(light: 0xF0E4FA, dark: 0x4B2670)
-    static let lifeOSDanger = strata(light: 0xB3261E, dark: 0xFFB4AB)
+    static let lifeOSBrand = tirni(light: 0xE5093B, dark: 0xFF6B86)
+    static let lifeOSSecondary = tirni(light: 0x8B001C, dark: 0xFFFFA3B6)
+    static let lifeOSCanvas = tirni(light: 0xFFFFFF, dark: 0x0F0B0D)
+    static let lifeOSCard = tirni(light: 0xFFF3F5, dark: 0x1B1217)
+    static let lifeOSSurfaceMuted = tirni(light: 0xFFFFE1E8, dark: 0x291820)
+    static let lifeOSSurfaceStrong = tirni(light: 0xFFFFE1E8, dark: 0x3B202A)
+    static let lifeOSBorder = tirni(light: 0xFFF1DDE2, dark: 0x5A3A45)
+    static let lifeOSInk = tirni(light: 0xFF111827, dark: 0xFFFFF5F7)
+    static let lifeOSInkSoft = tirni(light: 0xFF374151, dark: 0xFFE8D9DE)
+    static let lifeOSMuted = tirni(light: 0xFF6B7280, dark: 0xFFC8B8BE)
+    static let lifeOSAccentSoft = tirni(light: 0xFFFFE1E8, dark: 0xFF54202D)
+    static let lifeOSSecondarySoft = tirni(light: 0xFFFFE1E8, dark: 0xFF54202D)
+    static let lifeOSDanger = tirni(light: 0xFFB3261E, dark: 0xFFFFB4AB)
 }
 
-private func strata(light: UInt32, dark: UInt32) -> Color {
+private func tirni(light: UInt32, dark: UInt32) -> Color {
     Color(uiColor: UIColor { traits in
         let hex = traits.userInterfaceStyle == .dark ? dark : light
         return UIColor(
