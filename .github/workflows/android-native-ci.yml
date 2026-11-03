@@ -23,11 +23,14 @@ jobs:
       - name: Run Room instrumentation tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 35
+          api-level: 34
           arch: x86_64
           target: google_apis
-          emulator-boot-timeout: 600
+          ram-size: 2048M
+          heap-size: 512M
+          emulator-boot-timeout: 900
           disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: cd apps/android && gradle :app:connectedDebugAndroidTest
       - name: Upload installable debug APK
         uses: actions/upload-artifact@v4
