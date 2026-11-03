@@ -8,9 +8,14 @@ struct TodayView: View {
     @State private var isShowingAddHabit = false
     @State private var editingHabit: Habit?
 
-    private var completedCount: Int { habits.filter(\.isComplete).count }
+    private var todayHabits: [Habit] {
+        let calendarWeekday = Calendar.current.component(.weekday, from: .now)
+        let isoWeekday = ((calendarWeekday + 5) % 7) + 1
+        return habits.filter { $0.scheduledWeekdays.split(separator: ",").compactMap { Int($0) }.contains(isoWeekday) }
+    }
+    private var completedCount: Int { todayHabits.filter(\.isComplete).count }
     private var progress: Double {
-        habits.isEmpty ? 0 : Double(completedCount) / Double(habits.count)
+        todayHabits.isEmpty ? 0 : Double(completedCount) / Double(todayHabits.count)
     }
 
     var body: some View {
@@ -32,12 +37,12 @@ struct TodayView: View {
                     HStack {
                         Text("Your rhythm").font(.title2.weight(.semibold))
                         Spacer()
-                        Text("\(completedCount) of \(habits.count)")
+                        Text("\(completedCount) of \(todayHabits.count)")
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(.secondary)
                     }
 
-                    if habits.isEmpty {
+                    if todayHabits.isEmpty {
                         ContentUnavailableView {
                             Label("Start with one small habit", systemImage: "checkmark.circle")
                         } description: {
@@ -50,9 +55,9 @@ struct TodayView: View {
                         .frame(minHeight: 230)
                     } else {
                         VStack(spacing: 0) {
-                            ForEach(habits) { habit in
+                            ForEach(todayHabits) { habit in
                                 HabitRow(habit: habit) { editingHabit = habit }
-                                if habit.id != habits.last?.id {
+                                if habit.id != todayHabits.last?.id {
                                     Divider().padding(.leading, 18)
                                 }
                             }
@@ -143,6 +148,8 @@ private struct HabitRow: View {
                     Text(habit.detail).font(.subheadline).foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
+                Text(habit.targetUnit.isEmpty ? habit.area : "\(habit.targetValue.formatted()) \(habit.targetUnit) · \(habit.area)")
+                    .font(.caption).foregroundStyle(.secondary)
             }
             Spacer(minLength: 8)
             Button(action: onEdit) {
@@ -168,6 +175,9 @@ private struct AddHabitView: View {
     @State private var title = ""
     @State private var detail = ""
     @State private var area = "Mind"
+    @State private var targetValue = "1"
+    @State private var targetUnit = ""
+    @State private var weekdays: Set<Int> = Set(1...7)
     @State private var search = ""
     @State private var showingPresets = true
     private let habit: Habit?
@@ -192,6 +202,9 @@ private struct AddHabitView: View {
         _title = State(initialValue: habit?.title ?? "")
         _detail = State(initialValue: habit?.detail ?? "")
         _area = State(initialValue: habit?.area ?? "Mind")
+        _targetValue = State(initialValue: habit.map { String($0.targetValue) } ?? "1")
+        _targetUnit = State(initialValue: habit?.targetUnit ?? "")
+        _weekdays = State(initialValue: Set(habit?.scheduledWeekdays.split(separator: ",").compactMap { Int($0) } ?? Array(1...7)))
         _showingPresets = State(initialValue: habit == nil)
     }
 
@@ -301,9 +314,55 @@ private struct AddHabitView: View {
                         }
                     }
 
+                    VStack(alignment: .leading, spacing: 12) {
+                        sectionHeading("MEASURABLE TARGET")
+                        Text("Use 1 with no unit for a simple yes/no habit.")
+                            .font(.caption).foregroundStyle(.secondary)
+                        HStack(spacing: 10) {
+                            TextField("Target", text: $targetValue)
+                                .keyboardType(.decimalPad)
+                                .padding(13)
+                                .background(Color.lifeOSCard, in: RoundedRectangle(cornerRadius: 13))
+                            TextField("Unit (optional)", text: $targetUnit)
+                                .padding(13)
+                                .background(Color.lifeOSCard, in: RoundedRectangle(cornerRadius: 13))
+                        }
+                        if let value = Double(targetValue), value <= 0 {
+                            Text("Target must be greater than zero.").font(.caption).foregroundStyle(.red)
+                        }
+                    }
+
+                    VStack(alignment: .leading, spacing: 12) {
+                        sectionHeading("REPEAT ON")
+                        Text("Choose the days this habit is due.")
+                            .font(.caption).foregroundStyle(.secondary)
+                        HStack(spacing: 6) {
+                            ForEach(1...7, id: \.self) { day in
+                                let labels = ["M", "T", "W", "T", "F", "S", "S"]
+                                Button {
+                                    if weekdays.contains(day) { weekdays.remove(day) }
+                                    else { weekdays.insert(day) }
+                                } label: {
+                                    Text(labels[day - 1])
+                                        .font(.subheadline.weight(.semibold))
+                                        .frame(maxWidth: .infinity, minHeight: 42)
+                                        .background(weekdays.contains(day) ? Color.lifeOSAccentSoft : Color.lifeOSCard, in: RoundedRectangle(cornerRadius: 12))
+                                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(weekdays.contains(day) ? Color.lifeOSBrand : Color.lifeOSBorder, lineWidth: 1))
+                                        .foregroundStyle(weekdays.contains(day) ? Color.lifeOSBrand : Color.lifeOSInk)
+                                }
+                                .buttonStyle(.plain)
+                                .accessibilityLabel(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"][day - 1])
+                                .accessibilityAddTraits(weekdays.contains(day) ? .isSelected : [])
+                            }
+                        }
+                        if weekdays.isEmpty {
+                            Text("Choose at least one day.").font(.caption).foregroundStyle(.red)
+                        }
+                    }
+
                     Text("You can adjust your habit any time.")
                         .font(.caption).foregroundStyle(.secondary)
-                    LumenButton(intent: .primary, size: .lg, disabled: !canSave, action: {
+                    LumenButton(intent: .primary, size: .lg, disabled: !canSave || weekdays.isEmpty || (Double(targetValue) ?? 0) <= 0, action: {
                         let cleanTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
                         let cleanDetail = detail.trimmingCharacters(in: .whitespacesAndNewlines)
                         guard !cleanTitle.isEmpty else { return }
@@ -311,8 +370,11 @@ private struct AddHabitView: View {
                             habit.title = cleanTitle
                             habit.detail = cleanDetail
                             habit.area = area
+                            habit.targetValue = Double(targetValue) ?? 1
+                            habit.targetUnit = targetUnit.trimmingCharacters(in: .whitespacesAndNewlines)
+                            habit.scheduledWeekdays = weekdays.sorted().map(String.init).joined(separator: ",")
                         } else {
-                            modelContext.insert(Habit(title: cleanTitle, detail: cleanDetail, area: area))
+                            modelContext.insert(Habit(title: cleanTitle, detail: cleanDetail, area: area, targetValue: Double(targetValue) ?? 1, targetUnit: targetUnit.trimmingCharacters(in: .whitespacesAndNewlines), scheduledWeekdays: weekdays.sorted().map(String.init).joined(separator: ",")))
                         }
                         dismiss()
                     }) {
