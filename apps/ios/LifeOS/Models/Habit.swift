@@ -77,3 +77,20 @@ final class LifeGoal: Identifiable {
         self.progress = progress
     }
 }
+
+
+/// One completion per habit and local calendar date. The stable ID makes writes idempotent.
+@Model
+final class HabitCompletion: Identifiable {
+    @Attribute(.unique) var id: String
+    var habitID: UUID
+    var localDate: String
+    var completedAt: Date
+
+    init(habitID: UUID, localDate: String, completedAt: Date = .now) {
+        self.id = "\(habitID.uuidString)-\(localDate)"
+        self.habitID = habitID
+        self.localDate = localDate
+        self.completedAt = completedAt
+    }
+}
