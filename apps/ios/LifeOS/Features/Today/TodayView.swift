@@ -235,12 +235,17 @@ private struct AddHabitView: View {
                                 .background(Color.lifeOSCard, in: RoundedRectangle(cornerRadius: 14))
                                 LazyVStack(spacing: 9) {
                                     ForEach(filteredPresets, id: \.0) { preset in
-                                        Button {
-                                            title = preset.0
-                                            area = preset.1
-                                            detail = preset.2
-                                            showingPresets = false
-                                        } label: {
+                                        LumenCard(
+                                            variant: title == preset.0 ? .accent : .muted,
+                                            padding: .md,
+                                            radius: .lg,
+                                            action: {
+                                                title = preset.0
+                                                area = preset.1
+                                                detail = preset.2
+                                                showingPresets = false
+                                            }
+                                        ) {
                                             HStack(spacing: 12) {
                                                 VStack(alignment: .leading, spacing: 4) {
                                                     Text(preset.0).font(.subheadline.weight(.semibold)).foregroundStyle(Color.lifeOSInk)
@@ -250,12 +255,7 @@ private struct AddHabitView: View {
                                                 Text(preset.1.uppercased()).font(.system(size: 9, weight: .bold)).tracking(0.5)
                                                     .foregroundStyle(Color.lifeOSBrand)
                                             }
-                                            .padding(14)
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                            .background(title == preset.0 ? Color.lifeOSAccentSoft : Color.lifeOSCard, in: RoundedRectangle(cornerRadius: 15))
-                                            .overlay(RoundedRectangle(cornerRadius: 15).stroke(title == preset.0 ? Color.lifeOSBrand.opacity(0.55) : Color.lifeOSInk.opacity(0.06), lineWidth: 1))
                                         }
-                                        .buttonStyle(.plain)
                                     }
                                 }
                             }
