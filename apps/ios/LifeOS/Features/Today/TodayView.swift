@@ -56,7 +56,14 @@ struct TodayView: View {
                     } else {
                         VStack(spacing: 0) {
                             ForEach(todayHabits) { habit in
-                                HabitRow(habit: habit) { editingHabit = habit }
+                                HabitRow(habit: habit, isComplete: completedHabitIDs.contains(habit.id), onEdit: { editingHabit = habit }) { isComplete in
+                                    let existing = completions.first { $0.habitID == habit.id && $0.localDate == todayKey }
+                                    if isComplete {
+                                        if existing == nil { modelContext.insert(HabitCompletion(habitID: habit.id, localDate: todayKey)) }
+                                    } else if let existing {
+                                        modelContext.delete(existing)
+                                    }
+                                }
                                 if habit.id != todayHabits.last?.id {
                                     Divider().padding(.leading, 18)
                                 }
@@ -133,16 +140,18 @@ struct TodayView: View {
 }
 
 private struct HabitRow: View {
-    @Bindable var habit: Habit
+    let habit: Habit
+    let isComplete: Bool
     let onEdit: () -> Void
+    let onToggle: (Bool) -> Void
 
     var body: some View {
         HStack(spacing: 14) {
             VStack(alignment: .leading, spacing: 5) {
                 Text(habit.title)
                     .font(.body.weight(.medium))
-                    .foregroundStyle(habit.isComplete ? .secondary : .primary)
-                    .strikethrough(habit.isComplete)
+                    .foregroundStyle(isComplete ? .secondary : .primary)
+                    .strikethrough(isComplete)
                     .fixedSize(horizontal: false, vertical: true)
                 if !habit.detail.isEmpty {
                     Text(habit.detail).font(.subheadline).foregroundStyle(.secondary)
@@ -158,7 +167,7 @@ private struct HabitRow: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel("Edit \(habit.title)")
-            Toggle("Mark \(habit.title) complete", isOn: $habit.isComplete)
+            Toggle("Mark \(habit.title) complete", isOn: Binding(get: { isComplete }, set: onToggle))
                 .labelsHidden()
                 .tint(Color.lifeOSBrand)
                 .accessibilityLabel("Mark \(habit.title) complete")
@@ -168,7 +177,6 @@ private struct HabitRow: View {
         .contentShape(Rectangle())
     }
 }
-
 private struct AddHabitView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
