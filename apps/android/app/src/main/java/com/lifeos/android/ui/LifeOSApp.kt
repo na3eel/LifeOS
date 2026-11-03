@@ -35,7 +35,9 @@ private val lifeAreas = listOf("Body", "Mind", "Soul", "Social", "Career")
     val tasks by dao.tasks().collectAsStateWithLifecycle(emptyList())
     val goals by dao.goals().collectAsStateWithLifecycle(emptyList())
     val today = LocalDate.now()
-    val completions by dao.completionsForDate(today.toString()).collectAsStateWithLifecycle(emptyList())
+    var selectedDate by remember { mutableStateOf(today) }
+    val completionsFlow = remember(selectedDate) { dao.completionsForDate(selectedDate.toString()) }
+    val completions by completionsFlow.collectAsStateWithLifecycle(emptyList())
     val completedHabitIds = remember(completions) { completions.map { it.habitId }.toSet() }
     var tab by remember { mutableStateOf(Tab.Today) }
     var dialog by remember { mutableStateOf(false) }
@@ -44,8 +46,8 @@ private val lifeAreas = listOf("Body", "Mind", "Soul", "Social", "Career")
     var note by remember { mutableStateOf("") }
     var area by remember { mutableStateOf("Mind") }
     var editingHabit by remember { mutableStateOf<HabitEntity?>(null) }
-    val todayDay = today.dayOfWeek.value
-    val todayHabits = habits.filter { todayDay in it.scheduledWeekdays.split(",").mapNotNull(String::toIntOrNull) }
+    val selectedDay = selectedDate.dayOfWeek.value
+    val selectedDateHabits = habits.filter { selectedDay in it.scheduledWeekdays.split(",").mapNotNull(String::toIntOrNull) }
     val openAddDialog: (String) -> Unit = { selectedKind ->
         editingHabit = null; kind = selectedKind; title = ""; note = ""; area = "Mind"; dialog = true
     }
@@ -81,19 +83,20 @@ private val lifeAreas = listOf("Body", "Mind", "Soul", "Social", "Career")
         when (tab) {
             Tab.Today -> LazyColumn(Modifier.fillMaxSize().padding(pad).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 item {
-                    Text("YOUR DAY", style = MaterialTheme.typography.labelMedium)
-                    Text("Make today count.", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.SemiBold)
-                    Card(shape = RoundedCornerShape(22.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
-                        Column(Modifier.fillMaxWidth().padding(18.dp)) {
-                            Text("DAILY RHYTHM")
-                            Text("${todayHabits.count { it.id in completedHabitIds }} / ${todayHabits.size} complete", style = MaterialTheme.typography.headlineMedium)
-                            LinearProgressIndicator(progress = { if (todayHabits.isEmpty()) 0f else todayHabits.count { it.id in completedHabitIds }.toFloat() / todayHabits.size }, modifier = Modifier.fillMaxWidth())
+                    Text(selectedDate.format(java.time.format.DateTimeFormatter.ofPattern("EEEE, d MMMM")).uppercase(), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(if (selectedDate == today) "Make today count." else "Your day, your pace.", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.SemiBold)
+                    WeekDateNavigator(selectedDate = selectedDate, today = today, onDateSelected = { selectedDate = it })
+                    Card(shape = RoundedCornerShape(18.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
+                        Column(Modifier.fillMaxWidth().padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text("DAILY RHYTHM", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("${selectedDateHabits.count { it.id in completedHabitIds }} / ${selectedDateHabits.size} complete", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.SemiBold)
+                            LinearProgressIndicator(progress = { if (selectedDateHabits.isEmpty()) 0f else selectedDateHabits.count { it.id in completedHabitIds }.toFloat() / selectedDateHabits.size }, modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.primary, trackColor = MaterialTheme.colorScheme.surface)
                         }
                     }
-                    Text("Your habits", style = MaterialTheme.typography.titleLarge)
+                    Text("Habits", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold)
                 }
-                if (todayHabits.isEmpty()) item { Empty("No habits due today", "Add a habit or change its repeat days to see it here.") }
-                items(todayHabits, key = { it.id }) { h ->
+                if (selectedDateHabits.isEmpty()) item { Empty("No habits due on this day", "Choose another date or adjust a habit's repeat days.") }
+                items(selectedDateHabits, key = { it.id }) { h ->
                     Card {
                         Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f)) {
@@ -101,8 +104,8 @@ private val lifeAreas = listOf("Body", "Mind", "Soul", "Social", "Career")
                                 Text(if (h.targetUnit.isBlank()) h.area else "${h.targetValue.toInt()} ${h.targetUnit} · ${h.area}", style = MaterialTheme.typography.bodySmall)
                             }
                             Checkbox(h.id in completedHabitIds, { checked -> scope.launch {
-                                if (checked) dao.markHabitComplete(HabitCompletionEntity(h.id, today.toString(), System.currentTimeMillis()))
-                                else dao.undoHabitCompletion(h.id, today.toString())
+                                if (checked) dao.markHabitComplete(HabitCompletionEntity(h.id, selectedDate.toString(), System.currentTimeMillis()))
+                                else dao.undoHabitCompletion(h.id, selectedDate.toString())
                             } })
                             IconButton(onClick = { editingHabit = h; title = h.title; note = h.note; area = h.area; kind = "Habit"; dialog = true }) { Icon(Icons.Outlined.Edit, "Edit habit") }
                             IconButton({ scope.launch { dao.deleteHabit(h) } }) { Icon(Icons.Outlined.DeleteOutline, "Delete") }
@@ -198,6 +201,57 @@ private val lifeAreas = listOf("Body", "Mind", "Soul", "Social", "Career")
         },
         dismissButton = { TextButton(onClick = { dialog = false }) { Text("Cancel") } }
     )
+}
+
+
+@Composable
+private fun WeekDateNavigator(
+    selectedDate: LocalDate,
+    today: LocalDate,
+    onDateSelected: (LocalDate) -> Unit
+) {
+    val weekStart = selectedDate.with(DayOfWeek.MONDAY)
+    val dates = (0..6).map(weekStart::plusDays)
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = { onDateSelected(selectedDate.minusWeeks(1)) }) {
+                Icon(Icons.Outlined.ChevronLeft, contentDescription = "Previous week")
+            }
+            Text(
+                weekStart.format(java.time.format.DateTimeFormatter.ofPattern("d MMM")) +
+                    " – " + weekStart.plusDays(6).format(java.time.format.DateTimeFormatter.ofPattern("d MMM")),
+                style = MaterialTheme.typography.labelLarge
+            )
+            IconButton(onClick = { onDateSelected(selectedDate.plusWeeks(1)) }) {
+                Icon(Icons.Outlined.ChevronRight, contentDescription = "Next week")
+            }
+        }
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            dates.forEach { date ->
+                val selected = date == selectedDate
+                TextButton(
+                    onClick = { onDateSelected(date) },
+                    modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+                    contentPadding = PaddingValues(vertical = 6.dp, horizontal = 0.dp),
+                    colors = ButtonDefaults.textButtonColors(
+                        containerColor = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                        contentColor = if (selected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(date.dayOfWeek.name.take(1), style = MaterialTheme.typography.labelSmall)
+                        Text(date.dayOfMonth.toString(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                        if (date == today) Text("TODAY", style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable private fun Empty(title: String, detail: String) {
