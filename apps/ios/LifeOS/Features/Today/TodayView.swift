@@ -5,6 +5,7 @@ import SwiftData
 struct TodayView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Habit.createdAt, order: .forward) private var habits: [Habit]
+    @Query private var completions: [HabitCompletion]
     @State private var isShowingAddHabit = false
     @State private var editingHabit: Habit?
 
@@ -13,7 +14,17 @@ struct TodayView: View {
         let isoWeekday = ((calendarWeekday + 5) % 7) + 1
         return habits.filter { $0.scheduledWeekdays.split(separator: ",").compactMap { Int($0) }.contains(isoWeekday) }
     }
-    private var completedCount: Int { todayHabits.filter(\.isComplete).count }
+    private var todayKey: String {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar.current
+        formatter.timeZone = .current
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: .now)
+    }
+    private var completedHabitIDs: Set<UUID> {
+        Set(completions.filter { $0.localDate == todayKey }.map(\.habitID))
+    }
+    private var completedCount: Int { todayHabits.filter { completedHabitIDs.contains($0.id) }.count }
     private var progress: Double {
         todayHabits.isEmpty ? 0 : Double(completedCount) / Double(todayHabits.count)
     }
