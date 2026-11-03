@@ -13,7 +13,7 @@ struct LifeOSApp: App {
 }
 
 private struct LifeOSThemedRoot: View {
-    @Environment(\\.colorScheme) private var colorScheme
+    @Environment(\.colorScheme) private var colorScheme
 
     private var strataTheme: LumenTheme {
         let dark = colorScheme == .dark
