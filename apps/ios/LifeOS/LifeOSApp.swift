@@ -19,12 +19,12 @@ private struct LifeOSThemedRoot: View {
         let dark = colorScheme == .dark
         let base = dark ? LumenColors.dark : LumenColors.light
         let colors = base.overriding(
-            canvas: Color(hex: dark ? 0x171313 : 0xFFFEFC),
-            surface: Color(hex: dark ? 0x211C24 : 0xFFFFFF),
+            canvas: Color(hex: dark ? 0x171313 : 0xFFFBF7),
+            surface: Color(hex: dark ? 0x211C24 : 0xF3E8E1),
             surfaceMuted: Color(hex: dark ? 0x342B37 : 0xF3E8E1),
             surfaceStrong: Color(hex: dark ? 0x463A49 : 0xE9DDD6),
             line: Color(hex: dark ? 0x655767 : 0xD6C5BC),
-            ink: Color(hex: dark ? 0xF8F0F5 : 0x171313),
+            ink: Color(hex: dark ? 0xF8F0F5 : 0x1F1724),
             inkSoft: Color(hex: dark ? 0xE0D5E3 : 0x443843),
             inkMuted: Color(hex: dark ? 0xB9AABF : 0x6F626B),
             brand: Color(hex: dark ? 0xFF9A7E : 0xDB5635),
