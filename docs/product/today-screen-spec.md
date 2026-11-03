@@ -2,6 +2,8 @@
 
 Status: implementation target; not a release sign-off.
 
+**Required design reference:** [Approved Strata Today screen](../design/today-screen-strata-approved.md). Read that visual reference before changing either native Today screen. The design reference governs visual direction; this document governs behaviour and acceptance.
+
 ## Purpose
 The Today screen is the user's daily command centre. It should answer, in order:
 1. What day is it and what matters?
