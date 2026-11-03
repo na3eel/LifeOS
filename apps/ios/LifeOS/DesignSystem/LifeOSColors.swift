@@ -5,7 +5,7 @@ import UIKit
 /// Dark values are a deliberate native adaptation; every semantic color follows system appearance.
 extension Color {
     static let lifeOSBrand = tirni(light: 0xE5093B, dark: 0xFF6B86)
-    static let lifeOSSecondary = tirni(light: 0x8B001C, dark: 0xFFFFA3B6)
+    static let lifeOSSecondary = tirni(light: 0xFF3D6A, dark: 0xFFFFA3B6)
     static let lifeOSCanvas = tirni(light: 0xFFFFFF, dark: 0x0F0B0D)
     static let lifeOSCard = tirni(light: 0xFFF3F5, dark: 0x1B1217)
     static let lifeOSSurfaceMuted = tirni(light: 0xFFFFE1E8, dark: 0x291820)
