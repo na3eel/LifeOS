@@ -11,14 +11,14 @@ import com.santi020k.lumen.LumenTheme
 import com.santi020k.lumen.LumenThemeValues
 import com.santi020k.lumen.LumenSurfaceMaterial
 
-/** LifeOS Strata semantic palette mapped into Lumen's native theme contract. */
+/** Approved Strata semantic palette. Keep aligned with the iOS palette and design reference. */
 private val StrataLight = LumenColorPalette(
-    canvas = Color(0xFFFFFBF7),
+    canvas = Color(0xFFFFFEFC),
     surface = Color(0xFFFFFFFF),
     surfaceMuted = Color(0xFFF3E8E1),
     surfaceStrong = Color(0xFFE9DDD6),
     line = Color(0xFFD6C5BC),
-    ink = Color(0xFF1F1724),
+    ink = Color(0xFF171313),
     inkSoft = Color(0xFF443843),
     inkMuted = Color(0xFF6F626B),
     brand = Color(0xFFDB5635),
@@ -33,7 +33,7 @@ private val StrataLight = LumenColorPalette(
 )
 
 private val StrataDark = LumenColorPalette(
-    canvas = Color(0xFF17131A),
+    canvas = Color(0xFF171313),
     surface = Color(0xFF211C24),
     surfaceMuted = Color(0xFF342B37),
     surfaceStrong = Color(0xFF463A49),
