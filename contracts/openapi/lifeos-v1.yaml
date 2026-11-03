@@ -1,0 +1,90 @@
+openapi: 3.1.0
+info:
+  title: LifeOS API
+  version: 1.0.0
+  description: Shared contract for the LifeOS mobile client and ASP.NET Core API.
+servers:
+  - url: /api/v1
+paths:
+  /dashboard/today:
+    get:
+      operationId: getTodayDashboard
+      responses:
+        "200":
+          description: Today's dashboard summary
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [date, completedCount, dueCount, habits]
+                properties:
+                  date: { type: string, format: date }
+                  completedCount: { type: integer }
+                  dueCount: { type: integer }
+                  habits:
+                    type: array
+                    items: { $ref: "#/components/schemas/Habit" }
+  /habits:
+    get:
+      operationId: listHabits
+      responses:
+        "200":
+          description: User's active habits
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Habit" }
+    post:
+      operationId: createHabit
+      responses:
+        "201": { description: Habit created }
+  /habits/{habitId}/completion/{date}:
+    put:
+      operationId: setHabitCompletion
+      parameters:
+        - in: path
+          name: habitId
+          required: true
+          schema: { type: string, format: uuid }
+        - in: path
+          name: date
+          required: true
+          schema: { type: string, format: date }
+      responses:
+        "200": { description: Completion state saved idempotently }
+  /life-areas:
+    get:
+      operationId: listLifeAreas
+      responses:
+        "200": { description: Life areas }
+  /calendar/{year}/{month}:
+    get:
+      operationId: getCalendarMonth
+      parameters:
+        - in: path
+          name: year
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: month
+          required: true
+          schema: { type: integer, minimum: 1, maximum: 12 }
+      responses:
+        "200": { description: Monthly completion data }
+  /analytics/overview:
+    get:
+      operationId: getAnalyticsOverview
+      responses:
+        "200": { description: Habit consistency overview }
+components:
+  schemas:
+    Habit:
+      type: object
+      required: [id, name, lifeAreaId, isActive]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string, minLength: 1, maxLength: 120 }
+        lifeAreaId: { type: string, format: uuid }
+        isActive: { type: boolean }
+        schedule: { type: object }

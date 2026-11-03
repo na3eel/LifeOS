@@ -1,0 +1,42 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: lifeos-postgres
+    environment:
+      POSTGRES_DB: lifeos
+      POSTGRES_USER: lifeos
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-lifeos-password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - lifeos-postgres-data:/var/lib/postgresql/data
+      - ./sql/001_identity_schema.sql:/docker-entrypoint-initdb.d/001_identity_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lifeos -d lifeos"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  api:
+    build:
+      context: ../..
+      dockerfile: src/backend/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__LifeOS: Host=postgres;Port=5432;Database=lifeos;Username=lifeos;Password=${POSTGRES_PASSWORD:-local-lifeos-password}
+      Authentication__SigningKey: ${LIFEOS_SIGNING_KEY:?Set LIFEOS_SIGNING_KEY to a random value of at least 32 characters}
+      Authentication__Issuer: LifeOS
+      Authentication__Audience: LifeOS.Mobile
+      App__PublicBaseUrl: ${LIFEOS_PUBLIC_BASE_URL:-http://localhost:8080}
+      Email__LogOnly: ${EMAIL_LOG_ONLY:-true}
+      Email__SmtpHost: ${EMAIL_SMTP_HOST:-}
+      Email__SmtpPort: ${EMAIL_SMTP_PORT:-587}
+      Email__From: ${EMAIL_FROM:-}
+      Email__Username: ${EMAIL_USERNAME:-}
+      Email__Password: ${EMAIL_PASSWORD:-}
+    ports:
+      - "8080:8080"
+volumes:
+  lifeos-postgres-data:

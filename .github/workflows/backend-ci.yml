@@ -1,0 +1,21 @@
+name: Backend CI
+on:
+  pull_request:
+    branches: [main]
+    paths: ["src/backend/**"]
+  push:
+    branches: [work/backend-foundation]
+    paths: ["src/backend/**"]
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet restore LifeOS.sln
+      - run: dotnet build LifeOS.sln --no-restore --configuration Release
