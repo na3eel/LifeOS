@@ -15,16 +15,15 @@ import com.santi020k.lumen.LumenTheme
 import com.santi020k.lumen.LumenThemeValues
 import com.santi020k.lumen.LumenSurfaceMaterial
 
-// Strata is the single source of truth for both the Lumen primitives and
-// Material 3 components used by the native Android screens.
-private val StrataCanvas = Color(0xFFFFFEFC)
-private val StrataSurface = Color(0xFFFFFFFF)
-private val StrataInk = Color(0xFF171313)
+// Approved Strata tokens: docs/design/lifeos-approved-theme.md.
+private val StrataCanvas = Color(0xFFFFFBF7)
+private val StrataSurface = Color(0xFFF3E8E1)
+private val StrataInk = Color(0xFF1F1724)
 private val StrataOrange = Color(0xFFDB5635)
 private val StrataOrangeDeep = Color(0xFFB83F25)
 private val StrataOrangeSoft = Color(0xFFFCE4DA)
 private val StrataPurple = Color(0xFF9828F6)
-private val StrataLine = Color(0xFFE9DDD6)
+private val StrataLine = Color(0xFFD6C5BC)
 private val StrataMutedInk = Color(0xFF6F626B)
 
 private val StrataLightMaterial = lightColorScheme(
@@ -34,15 +33,15 @@ private val StrataLightMaterial = lightColorScheme(
     onPrimaryContainer = StrataInk,
     secondary = StrataPurple,
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFF3E8F8),
+    secondaryContainer = Color(0xFFF0E4FA),
     onSecondaryContainer = StrataInk,
     background = StrataCanvas,
     onBackground = StrataInk,
     surface = StrataSurface,
     onSurface = StrataInk,
-    surfaceVariant = Color(0xFFF3E8E1),
+    surfaceVariant = StrataSurface,
     onSurfaceVariant = StrataMutedInk,
-    outline = Color(0xFFD6C5BC),
+    outline = StrataLine,
     outlineVariant = StrataLine,
     error = Color(0xFFB3261E),
     onError = Color.White
@@ -72,9 +71,9 @@ private val StrataDarkMaterial = darkColorScheme(
 private val StrataLight = LumenColorPalette(
     canvas = StrataCanvas,
     surface = StrataSurface,
-    surfaceMuted = Color(0xFFF3E8E1),
-    surfaceStrong = StrataLine,
-    line = Color(0xFFD6C5BC),
+    surfaceMuted = StrataSurface,
+    surfaceStrong = Color(0xFFE9DDD6),
+    line = StrataLine,
     ink = StrataInk,
     inkSoft = Color(0xFF443843),
     inkMuted = StrataMutedInk,
