@@ -11,6 +11,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.santi020k.lumen.LumenButton
 import com.santi020k.lumen.LumenButtonIntent
+import com.santi020k.lumen.LumenCard
+import com.santi020k.lumen.LumenCardVariant
 
 private data class HabitPreset(val title:String,val area:String,val note:String,val category:String)
 private val habitPresets=listOf(
@@ -54,8 +56,12 @@ internal fun HabitEditorSheet(
      OutlinedTextField(search,{search=it},Modifier.fillMaxWidth(),singleLine=true,placeholder={Text("Search ideas")},shape=RoundedCornerShape(14.dp))
     }
     if(showPresets) items(filtered){preset->
-     Surface(onClick={title=preset.title;note=preset.note;area=preset.area;showPresets=false},shape=RoundedCornerShape(16.dp),color=if(title==preset.title)MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha=.45f),border=if(title==preset.title) androidx.compose.foundation.BorderStroke(1.dp,MaterialTheme.colorScheme.primary) else null){
-      Row(Modifier.fillMaxWidth().padding(14.dp),horizontalArrangement=Arrangement.SpaceBetween){
+     LumenCard(
+      variant=if(title==preset.title)LumenCardVariant.Accent else LumenCardVariant.Muted,
+      padding=com.santi020k.lumen.LumenSurfacePadding.Md,
+      onClick={title=preset.title;note=preset.note;area=preset.area;showPresets=false}
+     ){
+      Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween){
        Column(Modifier.weight(1f)){Text(preset.title,fontWeight=FontWeight.SemiBold);Text(preset.note,style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)}
        Text(preset.area,style=MaterialTheme.typography.labelMedium,color=MaterialTheme.colorScheme.primary)
       }
