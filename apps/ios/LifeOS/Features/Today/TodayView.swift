@@ -1,4 +1,5 @@
 import SwiftUI
+import LumenUI
 import SwiftData
 
 struct TodayView: View {
@@ -302,7 +303,7 @@ private struct AddHabitView: View {
 
                     Text("You can adjust your habit any time.")
                         .font(.caption).foregroundStyle(.secondary)
-                    Button {
+                    LumenButton(intent: .primary, size: .lg, disabled: !canSave, action: {
                         let cleanTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
                         let cleanDetail = detail.trimmingCharacters(in: .whitespacesAndNewlines)
                         guard !cleanTitle.isEmpty else { return }
@@ -314,15 +315,11 @@ private struct AddHabitView: View {
                             modelContext.insert(Habit(title: cleanTitle, detail: cleanDetail, area: area))
                         }
                         dismiss()
-                    } label: {
+                    }) {
                         Text(habit == nil ? "Create habit" : "Save changes")
-                            .font(.body.weight(.semibold))
-                            .frame(maxWidth: .infinity).frame(height: 54)
-                            .foregroundStyle(.white)
-                            .background(Color.lifeOSBrand, in: RoundedRectangle(cornerRadius: 16))
+                            .frame(maxWidth: .infinity)
                     }
-                    .disabled(!canSave)
-                    .opacity(canSave ? 1 : 0.45)
+                    .frame(maxWidth: .infinity)
                     .padding(.top, 2)
                 }
                 .padding(20)
