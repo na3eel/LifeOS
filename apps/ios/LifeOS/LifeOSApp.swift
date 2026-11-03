@@ -31,7 +31,7 @@ private struct LifeOSThemedRoot: View {
             brandSolid: Color(hex: dark ? 0xFF6B86 : 0x8B001C),
             brandSoft: Color(hex: dark ? 0x54202D : 0xFFE1E8),
             onBrand: Color(hex: dark ? 0x3B0715 : 0xFFFFFF),
-            accent: Color(hex: dark ? 0xFFFFA3B6 : 0x8B001C),
+            accent: Color(hex: dark ? 0xFFFFA3B6 : 0xFF3D6A),
             success: Color(hex: dark ? 0x79D69D : 0x247A4B),
             warning: Color(hex: dark ? 0xF2C36D : 0x946000),
             danger: Color(hex: dark ? 0xFFB4AB : 0xB3261E),
