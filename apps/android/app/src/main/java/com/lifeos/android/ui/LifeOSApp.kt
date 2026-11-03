@@ -34,6 +34,9 @@ private val lifeAreas = listOf("Body", "Mind", "Soul", "Social", "Career")
     val areas by dao.areas().collectAsStateWithLifecycle(emptyList())
     val tasks by dao.tasks().collectAsStateWithLifecycle(emptyList())
     val goals by dao.goals().collectAsStateWithLifecycle(emptyList())
+    val today = LocalDate.now()
+    val completions by dao.completionsForDate(today.toString()).collectAsStateWithLifecycle(emptyList())
+    val completedHabitIds = remember(completions) { completions.map { it.habitId }.toSet() }
     var tab by remember { mutableStateOf(Tab.Today) }
     var dialog by remember { mutableStateOf(false) }
     var kind by remember { mutableStateOf("Habit") }
@@ -41,7 +44,7 @@ private val lifeAreas = listOf("Body", "Mind", "Soul", "Social", "Career")
     var note by remember { mutableStateOf("") }
     var area by remember { mutableStateOf("Mind") }
     var editingHabit by remember { mutableStateOf<HabitEntity?>(null) }
-    val todayDay = LocalDate.now().dayOfWeek.value
+    val todayDay = today.dayOfWeek.value
     val todayHabits = habits.filter { todayDay in it.scheduledWeekdays.split(",").mapNotNull(String::toIntOrNull) }
     val openAddDialog: (String) -> Unit = { selectedKind ->
         editingHabit = null; kind = selectedKind; title = ""; note = ""; area = "Mind"; dialog = true
@@ -83,8 +86,8 @@ private val lifeAreas = listOf("Body", "Mind", "Soul", "Social", "Career")
                     Card(shape = RoundedCornerShape(22.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)) {
                         Column(Modifier.fillMaxWidth().padding(18.dp)) {
                             Text("DAILY RHYTHM")
-                            Text("${todayHabits.count { it.done }} / ${todayHabits.size} complete", style = MaterialTheme.typography.headlineMedium)
-                            LinearProgressIndicator(progress = { if (todayHabits.isEmpty()) 0f else todayHabits.count { it.done }.toFloat() / todayHabits.size }, modifier = Modifier.fillMaxWidth())
+                            Text("${todayHabits.count { it.id in completedHabitIds }} / ${todayHabits.size} complete", style = MaterialTheme.typography.headlineMedium)
+                            LinearProgressIndicator(progress = { if (todayHabits.isEmpty()) 0f else todayHabits.count { it.id in completedHabitIds }.toFloat() / todayHabits.size }, modifier = Modifier.fillMaxWidth())
                         }
                     }
                     Text("Your habits", style = MaterialTheme.typography.titleLarge)
@@ -97,7 +100,10 @@ private val lifeAreas = listOf("Body", "Mind", "Soul", "Social", "Career")
                                 Text(h.title, fontWeight = FontWeight.Medium)
                                 Text(if (h.targetUnit.isBlank()) h.area else "${h.targetValue.toInt()} ${h.targetUnit} · ${h.area}", style = MaterialTheme.typography.bodySmall)
                             }
-                            Checkbox(h.done, { v -> scope.launch { dao.updateHabit(h.copy(done = v)) } })
+                            Checkbox(h.id in completedHabitIds, { checked -> scope.launch {
+                                if (checked) dao.markHabitComplete(HabitCompletionEntity(h.id, today.toString(), System.currentTimeMillis()))
+                                else dao.undoHabitCompletion(h.id, today.toString())
+                            } })
                             IconButton(onClick = { editingHabit = h; title = h.title; note = h.note; area = h.area; kind = "Habit"; dialog = true }) { Icon(Icons.Outlined.Edit, "Edit habit") }
                             IconButton({ scope.launch { dao.deleteHabit(h) } }) { Icon(Icons.Outlined.DeleteOutline, "Delete") }
                         }
@@ -148,7 +154,7 @@ private val lifeAreas = listOf("Body", "Mind", "Soul", "Social", "Career")
             Tab.Insights -> LazyColumn(Modifier.fillMaxSize().padding(pad).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 item { Text("Your insights", style = MaterialTheme.typography.headlineLarge); Text("A simple view of the consistency you’re building.") }
                 item { Metric("Habits created", habits.size.toString()) }
-                item { Metric("Completed habits", habits.count { it.done }.toString()) }
+                item { Metric("Completed today", completions.size.toString()) }
                 item { Metric("Open tasks", tasks.count { !it.done }.toString()) }
                 item { Metric("Goals in progress", goals.count { it.progress < 100 }.toString()) }
             }
