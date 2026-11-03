@@ -1,14 +1,14 @@
 import SwiftUI
 
 /// Approved Strata semantic palette. Keep synchronized with the Android Lumen palette
-/// and docs/design/today-screen-strata-approved.md.
+/// and docs/design/lifeos-approved-theme.md.
 extension Color {
     static let lifeOSBrand = Color(hex: 0xDB5635)
     static let lifeOSSecondary = Color(hex: 0x9828F6)
-    static let lifeOSCanvas = Color(hex: 0xFFFEFC)
+    static let lifeOSCanvas = Color(hex: 0xFFFBF7)
     static let lifeOSCard = Color(hex: 0xF3E8E1)
     static let lifeOSBorder = Color(hex: 0xD6C5BC)
-    static let lifeOSInk = Color(hex: 0x171313)
+    static let lifeOSInk = Color(hex: 0x1F1724)
     static let lifeOSMuted = Color(hex: 0x6F626B)
     static let lifeOSAccentSoft = Color(hex: 0xFCE4DA)
     static let lifeOSSecondarySoft = Color(hex: 0xF0E4FA)
