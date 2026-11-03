@@ -14,7 +14,7 @@ extension Color {
 }
 
 extension Color {
-    fileprivate init(hex: UInt32) {
+    init(hex: UInt32) {
         self.init(
             .sRGB,
             red: Double((hex >> 16) & 0xFF) / 255,
