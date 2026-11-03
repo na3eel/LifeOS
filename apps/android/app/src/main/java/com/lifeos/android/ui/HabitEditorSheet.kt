@@ -9,6 +9,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.santi020k.lumen.LumenButton
+import com.santi020k.lumen.LumenButtonIntent
 
 private data class HabitPreset(val title:String,val area:String,val note:String,val category:String)
 private val habitPresets=listOf(
@@ -74,7 +76,7 @@ internal fun HabitEditorSheet(
    }
    item {
     Text("You can adjust your habit any time.",style=MaterialTheme.typography.bodySmall,color=MaterialTheme.colorScheme.onSurfaceVariant)
-    Button(onClick={onSave(title.trim(),note.trim(),area)},enabled=title.isNotBlank(),modifier=Modifier.fillMaxWidth().height(52.dp),shape=RoundedCornerShape(16.dp)){Text(if(isEditing)"Save changes" else "Create habit")}
+    LumenButton(onClick={onSave(title.trim(),note.trim(),area)},intent=LumenButtonIntent.Primary,enabled=title.isNotBlank(),modifier=Modifier.fillMaxWidth().height(52.dp)){Text(if(isEditing)"Save changes" else "Create habit")}
     TextButton(onClick=onDismiss,modifier=Modifier.fillMaxWidth()){Text("Cancel")}
    }
   }
