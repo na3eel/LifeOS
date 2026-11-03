@@ -172,7 +172,7 @@ private val lifeAreas = listOf("Body", "Mind", "Soul", "Social", "Career")
             Tab.Coach -> Column(Modifier.fillMaxSize().padding(pad).padding(24.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
                 Text("Your coach", style = MaterialTheme.typography.headlineLarge)
                 Text("A small next step", style = MaterialTheme.typography.titleLarge)
-                Text(if (habits.isEmpty()) "Start with one habit that makes tomorrow easier." else if (habits.all { it.done }) "You’ve completed today’s habits. Take a moment to recognise that progress." else "Choose the easiest remaining habit and give it five focused minutes.")
+                Text(if (selectedDateHabits.isEmpty()) "Choose a habit that makes this day easier." else if (selectedDateHabits.all { it.id in completedHabitIds }) "You’ve completed this day’s habits. Take a moment to recognise that progress." else "Choose the easiest remaining habit and give it five focused minutes.")
                 Text("This is on-device guidance. AI coaching will be connected when the service is ready.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
